@@ -1,0 +1,75 @@
+import { User } from '../types/user';
+
+export const MOCK_USERS: Record<string, User & { passwordHash: string }> = {
+  'USR001': {
+    id: 'USR001',
+    name: 'Rajesh Kumar',
+    email: 'customer@truckgo.com',
+    mobile: '9876543210',
+    role: 'CUSTOMER',
+    status: 'ACTIVE',
+    createdAt: '2026-08-01T10:00:00Z',
+    passwordHash: '123456', // simple raw check for mockup
+  },
+  'USR002': {
+    id: 'USR002',
+    name: 'Balaji Logistics',
+    email: 'vendor@truckgo.com',
+    mobile: '9876543211',
+    role: 'VENDOR',
+    status: 'ACTIVE',
+    createdAt: '2026-08-02T10:00:00Z',
+    passwordHash: '123456',
+  },
+  'USR003': {
+    id: 'USR003',
+    name: 'Arun Kumar',
+    email: 'driver@truckgo.com',
+    mobile: '9876543212',
+    role: 'DRIVER',
+    status: 'ACTIVE',
+    createdAt: '2026-08-03T10:00:00Z',
+    passwordHash: '123456',
+  },
+  'USR004': {
+    id: 'USR004',
+    name: 'System Admin',
+    email: 'admin@truckgo.com',
+    mobile: '9876543213',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    createdAt: '2026-08-01T09:00:00Z',
+    passwordHash: 'admin123',
+  },
+  // Additional mock drivers for assignment list
+  'DRV002': {
+    id: 'DRV002',
+    name: 'Suresh Raina',
+    email: 'suresh@truckgo.com',
+    mobile: '9876543214',
+    role: 'DRIVER',
+    status: 'ACTIVE',
+    createdAt: '2026-08-05T12:00:00Z',
+    passwordHash: '123456',
+  },
+  'DRV003': {
+    id: 'DRV003',
+    name: 'Manoj Tiwari',
+    email: 'manoj@truckgo.com',
+    mobile: '9876543215',
+    role: 'DRIVER',
+    status: 'ACTIVE',
+    createdAt: '2026-08-06T08:00:00Z',
+    passwordHash: '123456',
+  },
+  'DRV004': {
+    id: 'DRV004',
+    name: 'Karthik Raja',
+    email: 'karthik@truckgo.com',
+    mobile: '9876543216',
+    role: 'DRIVER',
+    status: 'ACTIVE',
+    createdAt: '2026-08-07T11:00:00Z',
+    passwordHash: '123456',
+  }
+};
