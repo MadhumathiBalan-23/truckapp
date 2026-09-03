@@ -10,8 +10,8 @@ import { PaymentScreen } from '../screens/customer/PaymentScreen';
 import { TrackingScreen } from '../screens/customer/TrackingScreen';
 import { BookingHistoryScreen } from '../screens/customer/BookingHistoryScreen';
 import { ProfileScreen } from '../screens/customer/ProfileScreen';
-import { COLORS } from '../utils/theme';
-import { Text } from 'react-native';
+import { COLORS, SHADOWS } from '../utils/theme';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 
 const Tab = createBottomTabNavigator<CustomerTabParamList>();
 const Stack = createNativeStackNavigator<CustomerParamList>();
@@ -21,22 +21,22 @@ const CustomerTabNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.textMuted,
-        tabBarStyle: {
-          backgroundColor: COLORS.white,
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
-        tabBarIcon: ({ color }) => {
-          let label = '👤';
-          if (route.name === 'Home') label = '🏠';
-          if (route.name === 'Bookings') label = '📋';
-          if (route.name === 'Profile') label = '👤';
-          return <Text style={{ fontSize: 20, color }}>{label}</Text>;
+        tabBarInactiveTintColor: '#64748B',
+        tabBarLabelStyle: ts.label,
+        tabBarStyle: ts.bar,
+        tabBarIcon: ({ focused }) => {
+          let icon = '👤';
+          if (route.name === 'Home') icon = '🏠';
+          else if (route.name === 'Bookings') icon = '📋';
+          else if (route.name === 'Profile') icon = '👤';
+          return (
+            <View style={ts.iconWrap}>
+              <Text style={ts.icon}>{icon}</Text>
+              {focused && <View style={ts.dot} />}
+            </View>
+          );
         },
       })}
     >
@@ -51,10 +51,7 @@ export const CustomerNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       initialRouteName="CustomerTabs"
-      screenOptions={{
-        headerShown: false,
-        contentStyle: { backgroundColor: COLORS.background },
-      }}
+      screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }}
     >
       <Stack.Screen name="CustomerTabs" component={CustomerTabNavigator} />
       <Stack.Screen name="SearchTrucks" component={SearchTruckScreen} />
@@ -65,3 +62,38 @@ export const CustomerNavigator: React.FC = () => {
     </Stack.Navigator>
   );
 };
+
+const ts = StyleSheet.create({
+  bar: {
+    backgroundColor: '#0A192F',
+    borderTopWidth: 0,
+    height: Platform.OS === 'ios' ? 85 : 62,
+    paddingBottom: Platform.OS === 'ios' ? 22 : 8,
+    paddingTop: 8,
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  label: {
+    fontSize: 10,
+    fontWeight: '700',
+    marginTop: 0,
+  },
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+  },
+  icon: {
+    fontSize: 22,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    marginTop: 2,
+  },
+});

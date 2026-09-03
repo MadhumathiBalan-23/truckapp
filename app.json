@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "Truck",
-    "slug": "Truck",
+    "name": "Trukora",
+    "slug": "trukora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.trukora.app"
     },
     "android": {
+      "package": "com.trukora.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0F172A",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

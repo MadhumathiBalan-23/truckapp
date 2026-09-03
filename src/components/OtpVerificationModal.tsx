@@ -146,7 +146,7 @@ export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({
                 <Text style={styles.smsTitle}>MESSAGES • Just Now</Text>
               </View>
               <Text style={styles.smsBody}>
-                Your TruckGo verification OTP is <Text style={styles.smsCodeHighlight}>1234</Text>. Valid for 10 mins. Tap to auto-fill.
+                Your Trukora verification OTP is <Text style={styles.smsCodeHighlight}>1234</Text>. Valid for 10 mins. Tap to auto-fill.
               </Text>
             </TouchableOpacity>
           )}

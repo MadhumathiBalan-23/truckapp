@@ -45,7 +45,7 @@ export const VendorDashboard: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Vendor Dashboard" />
       
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} overScrollMode="never" bounces={true}>
         
         {/* Welcome Block */}
         <View style={styles.welcomeCard}>

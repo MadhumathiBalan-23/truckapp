@@ -3,41 +3,47 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   SafeAreaView,
   TextInput,
-  Alert,
+  Platform,
+  StatusBar as RNStatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
-import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
 import { OtpVerificationModal } from '../../components/OtpVerificationModal';
-import { ROLE_PRIVILEGES, UserRole } from '../../types/user';
+import { UserRole } from '../../types/user';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<AuthParamList, 'Login'>;
 
+const ROLES: { id: UserRole; label: string; icon: string; color: string }[] = [
+  { id: 'CUSTOMER', label: 'Customer', icon: '👤', color: COLORS.primary },
+  { id: 'VENDOR', label: 'Fleet Owner', icon: '🏢', color: '#0EA5E9' },
+  { id: 'DRIVER', label: 'Driver', icon: '🧑‍✈️', color: '#10B981' },
+  { id: 'ADMIN', label: 'Admin', icon: '🛠️', color: '#8B5CF6' },
+];
+
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
-  const login = useAuthStore((state) => state.login);
+  const route = useRoute();
+  const initialRole = (route.params as any)?.role || 'CUSTOMER';
+
   const sendOtp = useAuthStore((state) => state.sendOtp);
   const verifyOtpAndLogin = useAuthStore((state) => state.verifyOtpAndLogin);
   const authError = useAuthStore((state) => state.error);
   const isLoading = useAuthStore((state) => state.isLoading);
   const clearError = useAuthStore((state) => state.clearError);
 
-  // Tab mode: 'OTP' | 'PASSWORD'
-  const [loginMode, setLoginMode] = useState<'OTP' | 'PASSWORD'>('OTP');
+  // Selected Workspace Role
+  const [selectedRole, setSelectedRole] = useState<UserRole>(initialRole);
 
-  // Input states
-  const [mobileNumber, setMobileNumber] = useState('9876543210');
-  const [emailOrMobile, setEmailOrMobile] = useState('customer@truckgo.com');
-  const [password, setPassword] = useState('123456');
-  
+  // Clean empty mobile number input state
+  const [mobileNumber, setMobileNumber] = useState('');
+
   // OTP Modal state
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [errorLocal, setErrorLocal] = useState<string | null>(null);
@@ -59,103 +65,82 @@ export const LoginScreen: React.FC = () => {
     }
   };
 
-  // Verify OTP submission
+  // Verify OTP submission with selectedRole
   const handleVerifyOtp = async (otpCode: string) => {
-    const success = await verifyOtpAndLogin(mobileNumber, otpCode);
+    const success = await verifyOtpAndLogin(mobileNumber, otpCode, selectedRole);
     if (success) {
       setShowOtpModal(false);
     }
     return success;
   };
 
-  // Password Login submission
-  const handlePasswordLogin = async () => {
-    setErrorLocal(null);
-    clearError();
-
-    if (!emailOrMobile.trim()) {
-      setErrorLocal('Please enter Email or Mobile Number');
-      return;
-    }
-    if (!password) {
-      setErrorLocal('Please enter Password');
-      return;
-    }
-
-    await login(emailOrMobile, password);
-  };
-
-  // Quick Demo Login helper for role testing
-  const handleQuickDemoLogin = async (mobile: string, email: string, pass: string) => {
-    setMobileNumber(mobile);
-    setEmailOrMobile(email);
-    setPassword(pass);
-
-    if (loginMode === 'OTP') {
-      const res = await sendOtp(mobile);
-      if (res.success) {
-        setShowOtpModal(true);
-      }
-    } else {
-      await login(email, pass);
-    }
-  };
+  const topInset = Platform.OS === 'android' ? (RNStatusBar.currentHeight || 28) + 8 : 12;
+  const activeRoleObj = ROLES.find((r) => r.id === selectedRole) || ROLES[0];
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        
-        {/* Top Header with Deep Navy Background Accent */}
-        <View style={styles.brandHeroCard}>
-          <View style={styles.logoRow}>
-            <View style={styles.logoBadge}>
-              <Text style={styles.logoEmoji}>🚚</Text>
-            </View>
-            <View>
-              <Text style={styles.brandTitle}>TruckGo</Text>
-              <Text style={styles.brandSubtitle}>Role-Based Logistics Network</Text>
-            </View>
+      <StatusBar style="light" />
+
+      {/* ══════ FIXED TOP HEADER (Never Scrolls) ══════ */}
+      <View style={[styles.compactHeader, { paddingTop: topInset }]}>
+        <View style={styles.headerBar}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => navigation.navigate('Landing')}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.backBtnText}>‹</Text>
+          </TouchableOpacity>
+
+          <View style={styles.headerCenter}>
+            <Text style={styles.headerBrandName}>TRUKORA</Text>
+            <Text style={styles.headerScreenTitle}>Sign In</Text>
           </View>
-          <Text style={styles.brandDesc}>
-            Instant freight booking, fleet dispatch & live trip tracking with mobile OTP.
-          </Text>
+
+          <View style={{ width: 36 }} />
+        </View>
+        <View style={styles.accentLine} />
+      </View>
+
+      {/* Main Single-Screen Content (No Scroll Needed!) */}
+      <View style={styles.singleScreenContainer}>
+        {/* Role Workspace Selector Pills */}
+        <Text style={styles.sectionLabel}>SELECT YOUR ROLE</Text>
+        <View style={styles.rolePillsRow}>
+          {ROLES.map((r) => {
+            const isSelected = selectedRole === r.id;
+            return (
+              <TouchableOpacity
+                key={r.id}
+                style={[
+                  styles.rolePill,
+                  isSelected ? { borderColor: r.color, backgroundColor: r.color + '15' } : null,
+                ]}
+                onPress={() => {
+                  setSelectedRole(r.id);
+                  setErrorLocal(null);
+                  clearError();
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.rolePillIcon}>{r.icon}</Text>
+                <Text
+                  style={[
+                    styles.rolePillLabel,
+                    isSelected ? { color: r.color, fontWeight: '800' } : null,
+                  ]}
+                >
+                  {r.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
-        {/* Main Form Container */}
+        {/* Clean Login Form Box */}
         <View style={styles.formCard}>
-          <Text style={styles.cardTitle}>Welcome Back</Text>
-          <Text style={styles.cardSubtitle}>Select your login method to enter your workspace</Text>
-
-          {/* Mode Switcher Tabs */}
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tabBtn, loginMode === 'OTP' ? styles.tabBtnActive : null]}
-              onPress={() => {
-                setLoginMode('OTP');
-                setErrorLocal(null);
-                clearError();
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.tabText, loginMode === 'OTP' ? styles.tabTextActive : null]}>
-                📱 Mobile OTP
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.tabBtn, loginMode === 'PASSWORD' ? styles.tabBtnActive : null]}
-              onPress={() => {
-                setLoginMode('PASSWORD');
-                setErrorLocal(null);
-                clearError();
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={[styles.tabText, loginMode === 'PASSWORD' ? styles.tabTextActive : null]}>
-                🔑 Password
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.formTitle}>{activeRoleObj.label} Mobile OTP</Text>
+          <Text style={styles.formSub}>Enter your 10-digit mobile number to receive verification code</Text>
 
           {/* Error Alert Box */}
           {(errorLocal || authError) && (
@@ -164,130 +149,44 @@ export const LoginScreen: React.FC = () => {
             </View>
           )}
 
-          {/* TAB 1: Mobile OTP Form */}
-          {loginMode === 'OTP' ? (
-            <View style={styles.formSection}>
-              <Text style={styles.inputLabel}>Mobile Number</Text>
-              <View style={styles.phoneInputContainer}>
-                <View style={styles.countryCodeBadge}>
-                  <Text style={styles.flagEmoji}>🇮🇳</Text>
-                  <Text style={styles.countryCodeText}>+91</Text>
-                </View>
-                <TextInput
-                  style={styles.phoneTextInput}
-                  value={mobileNumber}
-                  onChangeText={(val) => setMobileNumber(val.replace(/[^0-9]/g, ''))}
-                  placeholder="Enter 10-digit mobile"
-                  placeholderTextColor={COLORS.textLight}
-                  keyboardType="phone-pad"
-                  maxLength={10}
-                />
-              </View>
-
-              <Text style={styles.helperTip}>
-                🔒 We will send a 4-digit OTP code to verify your mobile number.
-              </Text>
-
-              <Button
-                title="Send Verification OTP →"
-                onPress={handleSendOtp}
-                loading={isLoading}
-                style={styles.actionBtn}
-              />
+          {/* Mobile Phone Input */}
+          <View style={styles.phoneInputContainer}>
+            <View style={styles.countryCodeBadge}>
+              <Text style={styles.flagEmoji}>🇮🇳</Text>
+              <Text style={styles.countryCodeText}>+91</Text>
             </View>
-          ) : (
-            /* TAB 2: Password Form */
-            <View style={styles.formSection}>
-              <Input
-                label="Email or Mobile Number"
-                value={emailOrMobile}
-                onChangeText={setEmailOrMobile}
-                placeholder="customer@truckgo.com or 9876543210"
-                keyboardType="email-address"
-              />
-
-              <Input
-                label="Password"
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••"
-                secureTextEntry
-              />
-
-              <TouchableOpacity
-                style={styles.forgotBtn}
-                onPress={() => navigation.navigate('ForgotPassword')}
-              >
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
-
-              <Button
-                title="Sign In with Password"
-                onPress={handlePasswordLogin}
-                loading={isLoading}
-                style={styles.actionBtn}
-              />
-            </View>
-          )}
-
-          {/* Create Account Link */}
-          <View style={styles.registerPromptRow}>
-            <Text style={styles.promptText}>New to TruckGo?</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerLinkText}>Register with Mobile OTP</Text>
-            </TouchableOpacity>
+            <TextInput
+              style={styles.phoneTextInput}
+              value={mobileNumber}
+              onChangeText={(val) => setMobileNumber(val.replace(/[^0-9]/g, ''))}
+              placeholder="Mobile Number"
+              placeholderTextColor={COLORS.textLight}
+              keyboardType="phone-pad"
+              maxLength={10}
+              autoFocus={true}
+            />
           </View>
+
+          {/* Send OTP Button */}
+          <TouchableOpacity
+            style={[styles.sendOtpBtn, { backgroundColor: activeRoleObj.color }]}
+            onPress={handleSendOtp}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.sendOtpBtnTxt}>Send Verification OTP →</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Quick Demo Accounts Grid */}
-        <View style={styles.demoSection}>
-          <Text style={styles.demoHeaderTitle}>Instant Role Logins (Demo)</Text>
-          <Text style={styles.demoHeaderSub}>Tap any role to auto-fill & send verification OTP</Text>
-
-          <View style={styles.demoGrid}>
-            {(['CUSTOMER', 'VENDOR', 'DRIVER', 'ADMIN'] as UserRole[]).map((r) => {
-              const info = ROLE_PRIVILEGES[r];
-              let demoMobile = '9876543210';
-              let demoEmail = 'customer@truckgo.com';
-              let demoPass = '123456';
-
-              if (r === 'VENDOR') {
-                demoMobile = '9876543211';
-                demoEmail = 'vendor@truckgo.com';
-              } else if (r === 'DRIVER') {
-                demoMobile = '9876543212';
-                demoEmail = 'driver@truckgo.com';
-              } else if (r === 'ADMIN') {
-                demoMobile = '9876543213';
-                demoEmail = 'admin@truckgo.com';
-                demoPass = 'admin123';
-              }
-
-              return (
-                <TouchableOpacity
-                  key={r}
-                  style={[styles.demoRoleCard, { borderLeftColor: info.badgeColor }]}
-                  onPress={() => handleQuickDemoLogin(demoMobile, demoEmail, demoPass)}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.demoCardHeader}>
-                    <Text style={styles.demoIcon}>{info.icon}</Text>
-                    <View style={[styles.roleBadge, { backgroundColor: info.badgeColor + '20' }]}>
-                      <Text style={[styles.roleBadgeText, { color: info.badgeColor }]}>{r}</Text>
-                    </View>
-                  </View>
-
-                  <Text style={styles.demoRoleTitle}>{info.title.split('/')[0]}</Text>
-                  <Text style={styles.demoMobileText}>📱 +91 {demoMobile}</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+        {/* Bottom Quick Register Link */}
+        <View style={styles.footerRow}>
+          <Text style={styles.footerText}>Don't have an account?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={[styles.registerLinkTxt, { color: activeRoleObj.color }]}>Register with OTP</Text>
+          </TouchableOpacity>
         </View>
+      </View>
 
-      </ScrollView>
-
-      {/* Interactive Mobile OTP Modal */}
+      {/* Interactive Mobile OTP Verification Modal */}
       <OtpVerificationModal
         visible={showOtpModal}
         mobileNumber={mobileNumber}
@@ -296,8 +195,8 @@ export const LoginScreen: React.FC = () => {
         onResendOtp={async () => {
           await sendOtp(mobileNumber);
         }}
-        title="Mobile Verification OTP"
-        subtitle={`Verify mobile number to sign in as role privilege`}
+        title={`${activeRoleObj.label} OTP Verification`}
+        subtitle={`Verify mobile +91 ${mobileNumber} to enter ${activeRoleObj.label} portal`}
       />
     </SafeAreaView>
   );
@@ -306,55 +205,97 @@ export const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.secondaryDark,
   },
-  scrollContainer: {
-    flexGrow: 1,
-    padding: SPACING.lg,
+  compactHeader: {
+    backgroundColor: COLORS.secondaryDark,
+    ...SHADOWS.md,
+    zIndex: 100,
   },
-  brandHeroCard: {
-    backgroundColor: COLORS.secondaryDark, // Deep Midnight Navy
-    borderRadius: 24,
-    padding: SPACING.xl,
-    marginBottom: SPACING.lg,
-    ...SHADOWS.lg,
-  },
-  logoRow: {
+  headerBar: {
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
-    gap: SPACING.md,
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.lg,
   },
-  logoBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary,
+  backBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#1E293B',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  backBtnText: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: COLORS.white,
+    marginTop: -2,
+  },
+  headerCenter: {
+    alignItems: 'center',
+  },
+  headerBrandName: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: COLORS.primary,
+    letterSpacing: 3,
+  },
+  headerScreenTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.white,
+    letterSpacing: 0.3,
+    marginTop: -1,
+  },
+  accentLine: {
+    height: 2,
+    backgroundColor: COLORS.primary,
+  },
+  singleScreenContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: SPACING.lg,
+    justifyContent: 'center',
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: '900',
+    color: COLORS.textMuted,
+    letterSpacing: 1,
+    marginBottom: SPACING.xs + 2,
+    textAlign: 'center',
+  },
+  rolePillsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: SPACING.lg,
+    justifyContent: 'center',
+  },
+  rolePill: {
+    width: '48%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: 14,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 12,
+    gap: 8,
     ...SHADOWS.sm,
   },
-  logoEmoji: {
-    fontSize: 26,
+  rolePillIcon: {
+    fontSize: 18,
   },
-  brandTitle: {
-    fontSize: 26,
-    fontWeight: '900',
-    color: COLORS.white,
-    letterSpacing: 0.5,
-  },
-  brandSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  brandDesc: {
-    fontSize: 13,
-    color: '#94A3B8',
-    lineHeight: 18,
-    marginTop: 4,
+  rolePillLabel: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: COLORS.textMuted,
   },
   formCard: {
     backgroundColor: COLORS.card,
@@ -365,43 +306,19 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     marginBottom: SPACING.lg,
   },
-  cardTitle: {
+  formTitle: {
     fontSize: 22,
-    fontWeight: '800',
+    fontWeight: '900',
     color: COLORS.secondary,
+    textAlign: 'center',
   },
-  cardSubtitle: {
-    fontSize: 13,
+  formSub: {
+    fontSize: 12.5,
     color: COLORS.textMuted,
-    marginTop: 2,
-    marginBottom: SPACING.lg,
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.background,
-    borderRadius: 14,
-    padding: 4,
-    marginBottom: SPACING.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  tabBtn: {
-    flex: 1,
-    paddingVertical: SPACING.sm,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  tabBtnActive: {
-    backgroundColor: COLORS.secondary, // Deep Blue active tab
-    ...SHADOWS.sm,
-  },
-  tabText: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-  },
-  tabTextActive: {
-    color: COLORS.white,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: SPACING.xl,
+    lineHeight: 18,
   },
   errorBox: {
     backgroundColor: COLORS.dangerLight,
@@ -415,26 +332,18 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
     fontSize: 13,
     fontWeight: '600',
-  },
-  formSection: {
-    width: '100%',
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.secondary,
-    marginBottom: SPACING.xs,
+    textAlign: 'center',
   },
   phoneInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: COLORS.border,
-    borderRadius: 14,
+    borderRadius: 16,
     backgroundColor: COLORS.background,
-    height: 52,
+    height: 56,
     overflow: 'hidden',
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.xl,
   },
   countryCodeBadge: {
     flexDirection: 'row',
@@ -442,117 +351,50 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
     height: '100%',
     paddingHorizontal: SPACING.md,
-    gap: 4,
+    gap: 6,
   },
   flagEmoji: {
-    fontSize: 16,
+    fontSize: 18,
   },
   countryCodeText: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: COLORS.secondary,
   },
   phoneTextInput: {
     flex: 1,
     height: '100%',
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '800',
     color: COLORS.secondary,
     paddingHorizontal: SPACING.md,
-  },
-  helperTip: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    marginTop: 4,
-    marginBottom: SPACING.lg,
-  },
-  forgotBtn: {
-    alignSelf: 'flex-end',
-    marginBottom: SPACING.lg,
-  },
-  forgotText: {
-    color: COLORS.primary,
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  actionBtn: {
-    width: '100%',
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: COLORS.primary,
-  },
-  registerPromptRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: SPACING.lg,
-    gap: 6,
-  },
-  promptText: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-  },
-  registerLinkText: {
-    color: COLORS.primary,
-    fontSize: 14,
-    fontWeight: '800',
-  },
-  demoSection: {
-    marginBottom: SPACING.xl,
-  },
-  demoHeaderTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: COLORS.secondary,
-    textTransform: 'uppercase',
     letterSpacing: 1,
   },
-  demoHeaderSub: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    marginBottom: SPACING.md,
-  },
-  demoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: SPACING.md,
-  },
-  demoRoleCard: {
-    width: '47%',
-    backgroundColor: COLORS.card,
+  sendOtpBtn: {
+    height: 54,
     borderRadius: 16,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderLeftWidth: 4,
-    ...SHADOWS.sm,
-  },
-  demoCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
+    ...SHADOWS.md,
   },
-  demoIcon: {
-    fontSize: 20,
+  sendOtpBtnTxt: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '900',
+    letterSpacing: 0.5,
   },
-  roleBadge: {
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 6,
   },
-  roleBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-  },
-  demoRoleTitle: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: COLORS.secondary,
-  },
-  demoMobileText: {
-    fontSize: 11.5,
+  footerText: {
     color: COLORS.textMuted,
-    marginTop: 2,
-    fontWeight: '500',
+    fontSize: 13.5,
+  },
+  registerLinkTxt: {
+    fontSize: 13.5,
+    fontWeight: '900',
   },
 });

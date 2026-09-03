@@ -147,7 +147,7 @@ export const BookingScreen: React.FC = () => {
           )}
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>TruckGo Platform Fee</Text>
+            <Text style={styles.priceLabel}>Trukora Platform Fee</Text>
             <Text style={styles.priceValue}>₹{platformFee}</Text>
           </View>
 

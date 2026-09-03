@@ -41,7 +41,7 @@ export const DriverDashboard: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Driver Hub" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} overScrollMode="never" bounces={true}>
         
         {/* Welcome Section */}
         <View style={styles.statusBlock}>

@@ -1,516 +1,300 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Platform, SafeAreaView } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CustomerParamList } from '../../navigation/types';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Platform,
+  StatusBar as RNStatusBar,
+  Dimensions,
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
 import { useBookingStore } from '../../store/bookingStore';
-import { driverService } from '../../services/driverService';
-import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { StatusBadge } from '../../components/StatusBadge';
 
-type TrackingRouteProp = RouteProp<CustomerParamList, 'LiveTracking'>;
-type TrackingNavigationProp = NativeStackNavigationProp<CustomerParamList>;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// Simulated route coordinates (Chennai → Coimbatore route waypoints)
+const ROUTE_COORDS = [
+  { latitude: 13.0827, longitude: 80.2707 }, // Chennai
+  { latitude: 12.9716, longitude: 80.1514 },
+  { latitude: 12.8231, longitude: 79.6923 },
+  { latitude: 12.5268, longitude: 78.2141 },
+  { latitude: 11.6643, longitude: 78.1460 },
+  { latitude: 11.3410, longitude: 77.7172 },
+  { latitude: 11.0168, longitude: 76.9558 }, // Coimbatore
+];
 
 export const TrackingScreen: React.FC = () => {
-  const navigation = useNavigation<TrackingNavigationProp>();
-  const route = useRoute<TrackingRouteProp>();
-  
-  const getBookingById = useBookingStore((state) => state.getBookingById);
-  const liveCoordinates = useBookingStore((state) => state.liveCoordinates);
-  const booking = getBookingById(route.params.bookingId);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const bookingId = (route.params as any)?.bookingId;
+  const booking = useBookingStore((state) =>
+    state.bookings.find((b) => b.id === bookingId)
+  );
 
-  const [simProgress, setSimProgress] = useState(0);
-  const [isSimulating, setIsSimulating] = useState(false);
+  const [driverIndex, setDriverIndex] = useState(0);
+  const [tripStatus, setTripStatus] = useState<'PICKING_UP' | 'IN_TRANSIT' | 'ARRIVING'>('PICKING_UP');
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const mapRef = useRef<MapView>(null);
 
-  const coords = booking ? liveCoordinates[booking.id] : null;
+  const pickup = ROUTE_COORDS[0];
+  const drop = ROUTE_COORDS[ROUTE_COORDS.length - 1];
+  const driverPos = ROUTE_COORDS[driverIndex];
 
-  // Simulate movement over time if simulation active
+  // Simulate driver movement
   useEffect(() => {
-    let interval: any;
-    if (isSimulating && booking) {
-      interval = setInterval(() => {
-        setSimProgress((prev) => {
-          const next = prev + 0.05;
-          if (next >= 1.0) {
-            setIsSimulating(false);
-            driverService.updateTripStatus(booking.id, 'REACHED_DESTINATION', 'Driver reached destination.');
-            return 1.0;
-          }
-          driverService.simulateMovement(booking.id, next);
-          return next;
-        });
-      }, 1000);
-    }
+    const interval = setInterval(() => {
+      setDriverIndex((prev) => {
+        const next = prev + 1;
+        if (next >= ROUTE_COORDS.length - 1) {
+          setTripStatus('ARRIVING');
+          clearInterval(interval);
+          return ROUTE_COORDS.length - 1;
+        }
+        if (next > 1) setTripStatus('IN_TRANSIT');
+        return next;
+      });
+    }, 3000);
+
+    // Animate bottom sheet up
+    Animated.spring(slideAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 40,
+      friction: 8,
+    }).start();
+
     return () => clearInterval(interval);
-  }, [isSimulating, booking]);
+  }, []);
 
-  if (!booking) {
-    return (
-      <SafeAreaView style={COMMON_STYLES.safeArea}>
-        <Header title="Track Truck" onBack={() => navigation.goBack()} />
-        <View style={styles.errorView}><Text style={styles.errorText}>Booking not found</Text></View>
-      </SafeAreaView>
-    );
-  }
-
-  const handleCallDriver = () => {
-    if (!booking.driverMobile) {
-      Alert.alert('Info', 'Driver is not yet assigned to this shipment.');
-      return;
+  // Auto-fit map to markers
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.fitToCoordinates(ROUTE_COORDS, {
+        edgePadding: { top: 80, right: 40, bottom: 260, left: 40 },
+        animated: true,
+      });
     }
-    Alert.alert('Calling Driver', `Dialing ${booking.driverName} (${booking.driverMobile})...`);
+  }, [driverIndex]);
+
+  const topInset = Platform.OS === 'android' ? (RNStatusBar.currentHeight || 28) : 0;
+
+  const etaMinutes = Math.max(5, (ROUTE_COORDS.length - 1 - driverIndex) * 12);
+  const progressPct = Math.round((driverIndex / (ROUTE_COORDS.length - 1)) * 100);
+
+  const statusConfig = {
+    PICKING_UP: { label: 'Driver Heading to Pickup', color: COLORS.warning, emoji: '🚛' },
+    IN_TRANSIT: { label: 'Shipment In Transit', color: COLORS.info, emoji: '📦' },
+    ARRIVING: { label: 'Arriving at Destination', color: COLORS.success, emoji: '✅' },
   };
-
-  const handleMessageDriver = () => {
-    if (!booking.driverMobile) {
-      Alert.alert('Info', 'Driver is not yet assigned.');
-      return;
-    }
-    Alert.alert('Message Sent', `SMS sent to ${booking.driverName}`);
-  };
-
-  const toggleSimulation = () => {
-    if (booking.status === 'TRIP_COMPLETED') {
-      Alert.alert('Finished', 'Trip is already completed.');
-      return;
-    }
-    if (booking.status === 'BOOKING_REQUESTED') {
-      Alert.alert('Simulation Note', 'Booking is still in REQUESTED state. Please accept and assign driver from Vendor Dashboard first!');
-      return;
-    }
-    setSimProgress(0);
-    setIsSimulating(!isSimulating);
-  };
-
-  // Timeline nodes helper
-  const TIMELINE_STATES = [
-    { key: 'BOOKING_REQUESTED', label: 'Requested' },
-    { key: 'VENDOR_ACCEPTED', label: 'Accepted' },
-    { key: 'DRIVER_ASSIGNED', label: 'Assigned' },
-    { key: 'DRIVER_REACHED_PICKUP', label: 'Arrived' },
-    { key: 'LOADING_STARTED', label: 'Loading' },
-    { key: 'TRUCK_IN_TRANSIT', label: 'Transit' },
-    { key: 'REACHED_DESTINATION', label: 'Arrived Drop' },
-    { key: 'TRIP_COMPLETED', label: 'Completed' },
-  ];
-
-  const getTimelineIndex = (status: string) => {
-    return TIMELINE_STATES.findIndex((state) => state.key === status);
-  };
-
-  const currentIdx = getTimelineIndex(booking.status);
+  const currentStatus = statusConfig[tripStatus];
 
   return (
-    <SafeAreaView style={COMMON_STYLES.safeArea}>
-      <Header title="Live Tracking" onBack={() => navigation.goBack()} />
+    <View style={styles.root}>
+      <StatusBar style="dark" />
 
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
-        {/* Dynamic Route Canvas Simulation */}
-        <View style={styles.mapCard}>
-          <Text style={styles.mapHeader}>ROUTE TRAFFIC RADAR</Text>
-          
-          <View style={styles.radarContainer}>
-            {/* Start Node */}
-            <View style={[styles.radarPin, { left: 40, top: 120 }]}>
-              <View style={[styles.pinDot, { backgroundColor: COLORS.primary }]} />
-              <Text style={styles.pinLabel}>Pickup</Text>
-            </View>
+      {/* Google Map */}
+      <MapView
+        ref={mapRef}
+        style={styles.map}
+        provider={PROVIDER_GOOGLE}
+        initialRegion={{
+          latitude: 12.0,
+          longitude: 79.0,
+          latitudeDelta: 4,
+          longitudeDelta: 4,
+        }}
+        showsUserLocation={false}
+        showsMyLocationButton={false}
+      >
+        {/* Route Polyline */}
+        <Polyline
+          coordinates={ROUTE_COORDS}
+          strokeWidth={4}
+          strokeColor={COLORS.primary}
+        />
 
-            {/* End Node */}
-            <View style={[styles.radarPin, { right: 40, top: 40 }]}>
-              <View style={[styles.pinDot, { backgroundColor: COLORS.info }]} />
-              <Text style={styles.pinLabel}>Drop</Text>
-            </View>
-
-            {/* Simulated Road Path */}
-            <View style={styles.roadPath} />
-
-            {/* Animated Moving Truck Indicator */}
-            {booking.status === 'TRIP_COMPLETED' ? (
-              <View style={[styles.truckMarkerContainer, { right: 40, top: 40 }]}>
-                <Text style={styles.truckEmojiMarker}>🚩</Text>
-              </View>
-            ) : booking.status === 'TRUCK_IN_TRANSIT' || isSimulating ? (
-              <View
-                style={[
-                  styles.truckMarkerContainer,
-                  {
-                    left: 40 + (250 - 40) * simProgress,
-                    top: 120 + (40 - 120) * simProgress - 15,
-                  },
-                ]}
-              >
-                <Text style={styles.truckEmojiMarker}>🚚</Text>
-              </View>
-            ) : currentIdx >= 3 ? (
-              <View style={[styles.truckMarkerContainer, { left: 40, top: 120 }]}>
-                <Text style={styles.truckEmojiMarker}>🚚</Text>
-              </View>
-            ) : null}
-
-            {/* Inner HUD info */}
-            <View style={styles.hudOverlay}>
-              <Text style={styles.hudCoordinates}>
-                Lat: {coords?.latitude.toFixed(4) || '13.0727'} • Lng:{' '}
-                {coords?.longitude.toFixed(4) || '80.2007'}
-              </Text>
-              <Text style={styles.hudEta}>
-                {booking.status === 'TRIP_COMPLETED'
-                  ? 'Delivered'
-                  : booking.status === 'TRUCK_IN_TRANSIT'
-                  ? 'ETA: 15 mins'
-                  : 'ETA: Pending'}
-              </Text>
-            </View>
+        {/* Pickup Marker */}
+        <Marker coordinate={pickup} title="Pickup" description="Koyambedu, Chennai">
+          <View style={styles.markerGreen}>
+            <Text style={styles.markerTxt}>P</Text>
           </View>
+        </Marker>
 
-          {/* Simulator actions */}
-          {booking.status !== 'TRIP_COMPLETED' && booking.status !== 'BOOKING_REQUESTED' && (
-            <TouchableOpacity
-              style={[styles.simBtn, isSimulating ? { backgroundColor: COLORS.warning } : null]}
-              onPress={toggleSimulation}
-            >
-              <Text style={styles.simBtnTxt}>
-                {isSimulating ? '⏸️ PAUSE ROUTE SIMULATOR' : '▶️ PLAY ROUTE SIMULATOR (120 KM)'}
-              </Text>
-            </TouchableOpacity>
-          )}
+        {/* Drop Marker */}
+        <Marker coordinate={drop} title="Drop" description="Gandhipuram, Coimbatore">
+          <View style={styles.markerRed}>
+            <Text style={styles.markerTxt}>D</Text>
+          </View>
+        </Marker>
+
+        {/* Driver Marker (Live) */}
+        <Marker coordinate={driverPos} title="Driver" description="Live Location">
+          <View style={styles.driverMarker}>
+            <Text style={styles.driverMarkerTxt}>🚛</Text>
+          </View>
+        </Marker>
+      </MapView>
+
+      {/* Fixed Top Bar Overlay */}
+      <View style={[styles.floatingTopBar, { top: topInset + 8 }]}>
+        <TouchableOpacity style={styles.floatBackBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+          <Text style={styles.floatBackTxt}>‹</Text>
+        </TouchableOpacity>
+        <View style={styles.floatCenter}>
+          <Text style={styles.floatBrand}>TRUKORA</Text>
+          <Text style={styles.floatTitle}>Live Tracking</Text>
         </View>
-
-        {/* Dispatch Driver Info Card */}
-        <View style={COMMON_STYLES.card}>
-          <Text style={styles.cardHeader}>DISPATCH & VEHICLE INFO</Text>
-          
-          <View style={styles.driverRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarEmoji}>🧑‍✈️</Text>
-            </View>
-            
-            <View style={{ flex: 1 }}>
-              <Text style={styles.driverName}>{booking.driverName || 'Awaiting Driver Assignment'}</Text>
-              <Text style={styles.driverSub}>
-                {booking.driverName ? 'Verified Professional' : 'Vendor is arranging driver'}
-              </Text>
-            </View>
-
-            <StatusBadge status={booking.status} />
-          </View>
-
-          <View style={styles.vehicleSection}>
-            <Text style={styles.vehicleName}>
-              Vehicle: {booking.truckDetails.brand} {booking.truckDetails.model}
-            </Text>
-            <Text style={styles.vehiclePlate}>Plate No: {booking.truckDetails.truckNumber}</Text>
-          </View>
-
-          {booking.driverName && (
-            <View style={styles.actionsRow}>
-              <TouchableOpacity style={styles.contactBtn} onPress={handleCallDriver}>
-                <Text style={styles.contactBtnTxt}>📞 CALL DRIVER</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.contactBtn, styles.contactBtnOutline]} onPress={handleMessageDriver}>
-                <Text style={[styles.contactBtnTxt, { color: COLORS.secondary }]}>💬 CHAT</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+        <View style={styles.liveBadge}>
+          <View style={styles.liveRedDot} />
+          <Text style={styles.liveTxt}>LIVE</Text>
         </View>
+      </View>
 
-        {/* Timeline Progress Tracker */}
-        <View style={COMMON_STYLES.card}>
-          <Text style={styles.cardHeader}>SHIPMENT TIMELINE</Text>
-          
-          <View style={styles.timelineContainer}>
-            {TIMELINE_STATES.map((state, index) => {
-              const done = index <= currentIdx;
-              const isCurrent = index === currentIdx;
-
-              return (
-                <View key={state.key} style={styles.timelineNode}>
-                  <View style={styles.timelineIndicators}>
-                    <View
-                      style={[
-                        styles.indicatorDot,
-                        done ? styles.indicatorDotDone : null,
-                        isCurrent ? styles.indicatorDotCurrent : null,
-                      ]}
-                    />
-                    {index < TIMELINE_STATES.length - 1 && (
-                      <View style={[styles.indicatorLine, index < currentIdx ? styles.indicatorLineDone : null]} />
-                    )}
-                  </View>
-                  
-                  <View style={styles.timelineDetails}>
-                    <Text style={[styles.timelineLabel, done ? styles.timelineLabelDone : null]}>
-                      {state.label}
-                    </Text>
-                    {isCurrent && (
-                      <Text style={styles.timelineNote}>
-                        {booking.statusTimeline[booking.statusTimeline.length - 1]?.note || 'Updated'}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
+      {/* Bottom Trip Details Sheet */}
+      <Animated.View
+        style={[
+          styles.bottomSheet,
+          { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [300, 0] }) }] },
+        ]}
+      >
+        {/* Status Bar */}
+        <View style={[styles.statusRow, { borderColor: currentStatus.color }]}>
+          <Text style={styles.statusEmoji}>{currentStatus.emoji}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.statusLabel, { color: currentStatus.color }]}>{currentStatus.label}</Text>
+            <Text style={styles.statusSub}>ETA: {etaMinutes} mins • {progressPct}% completed</Text>
           </View>
         </View>
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </SafeAreaView>
+        {/* Progress Bar */}
+        <View style={styles.progressBarBg}>
+          <View style={[styles.progressBarFill, { width: `${progressPct}%`, backgroundColor: currentStatus.color }]} />
+        </View>
+
+        {/* Route Info */}
+        <View style={styles.routeInfoRow}>
+          <View style={styles.routePoint}>
+            <View style={styles.routeGreenDot} />
+            <View>
+              <Text style={styles.routeLabel}>PICKUP</Text>
+              <Text style={styles.routePlace} numberOfLines={1}>{booking?.pickupLocation || 'Koyambedu, Chennai'}</Text>
+            </View>
+          </View>
+          <View style={styles.routeArrow}><Text style={{ color: COLORS.textLight }}>→</Text></View>
+          <View style={styles.routePoint}>
+            <View style={styles.routeRedDot} />
+            <View>
+              <Text style={styles.routeLabel}>DROP</Text>
+              <Text style={styles.routePlace} numberOfLines={1}>{booking?.dropLocation || 'Gandhipuram, Coimbatore'}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Driver Card */}
+        <View style={styles.driverCard}>
+          <View style={styles.driverAvatar}>
+            <Text style={styles.driverAvatarTxt}>🧑‍✈️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.driverName}>Rajesh Kumar</Text>
+            <Text style={styles.driverSub}>TN 38 AB 1234 • Tata 407</Text>
+          </View>
+          <TouchableOpacity style={styles.callBtn} activeOpacity={0.8}>
+            <Text style={styles.callBtnTxt}>📞 Call</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  errorView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  root: { flex: 1, backgroundColor: COLORS.background },
+  map: { flex: 1 },
+  markerGreen: {
+    width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.success,
+    justifyContent: 'center', alignItems: 'center', ...SHADOWS.md,
+    borderWidth: 2, borderColor: COLORS.white,
   },
-  errorText: {
-    fontSize: 16,
-    color: COLORS.danger,
-    fontWeight: 'bold',
+  markerRed: {
+    width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.danger,
+    justifyContent: 'center', alignItems: 'center', ...SHADOWS.md,
+    borderWidth: 2, borderColor: COLORS.white,
   },
-  scrollContainer: {
-    padding: SPACING.lg,
+  markerTxt: { color: COLORS.white, fontSize: 13, fontWeight: '900' },
+  driverMarker: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.secondaryDark,
+    justifyContent: 'center', alignItems: 'center', ...SHADOWS.lg,
+    borderWidth: 2, borderColor: COLORS.primary,
   },
-  mapCard: {
-    backgroundColor: COLORS.card,
-    borderRadius: 20,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    ...SHADOWS.md,
-    marginBottom: SPACING.lg,
-    overflow: 'hidden',
+  driverMarkerTxt: { fontSize: 22 },
+  floatingTopBar: {
+    position: 'absolute', left: SPACING.lg, right: SPACING.lg,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: COLORS.secondaryDark, borderRadius: 16,
+    paddingHorizontal: SPACING.md, height: 48, ...SHADOWS.lg,
   },
-  mapHeader: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-    letterSpacing: 1.5,
-    marginBottom: SPACING.sm,
+  floatBackBtn: {
+    width: 30, height: 30, borderRadius: 10, backgroundColor: '#1E293B',
+    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#334155',
   },
-  radarContainer: {
-    height: 200,
-    backgroundColor: '#0F172A',
-    borderRadius: 14,
-    position: 'relative',
+  floatBackTxt: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginTop: -2 },
+  floatCenter: { alignItems: 'center' },
+  floatBrand: { fontSize: 8, fontWeight: '900', color: COLORS.primary, letterSpacing: 2.5 },
+  floatTitle: { fontSize: 13, fontWeight: '700', color: COLORS.white, marginTop: -1 },
+  liveBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
+    borderWidth: 1, borderColor: 'rgba(239,68,68,0.4)',
+  },
+  liveRedDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#EF4444' },
+  liveTxt: { fontSize: 10, fontWeight: '900', color: '#EF4444' },
+  bottomSheet: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    padding: SPACING.lg, paddingBottom: Platform.OS === 'ios' ? 34 : SPACING.lg,
+    ...SHADOWS.lg,
+  },
+  statusRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: COLORS.background, borderRadius: 14, padding: SPACING.md,
+    borderWidth: 1.5, marginBottom: SPACING.sm,
+  },
+  statusEmoji: { fontSize: 24 },
+  statusLabel: { fontSize: 14, fontWeight: '800' },
+  statusSub: { fontSize: 11, color: COLORS.textMuted, fontWeight: '600', marginTop: 1 },
+  progressBarBg: {
+    height: 6, backgroundColor: COLORS.border, borderRadius: 3, marginBottom: SPACING.md, overflow: 'hidden',
+  },
+  progressBarFill: { height: '100%', borderRadius: 3 },
+  routeInfoRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: SPACING.md,
-    overflow: 'hidden',
   },
-  radarPin: {
-    position: 'absolute',
-    alignItems: 'center',
-    zIndex: 10,
+  routePoint: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
+  routeGreenDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.success },
+  routeRedDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.danger },
+  routeArrow: { paddingHorizontal: 6 },
+  routeLabel: { fontSize: 9, fontWeight: '800', color: COLORS.textMuted, letterSpacing: 0.5 },
+  routePlace: { fontSize: 12, fontWeight: '700', color: COLORS.secondary },
+  driverCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: COLORS.secondaryDark, borderRadius: 14, padding: SPACING.md,
   },
-  pinDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: COLORS.white,
+  driverAvatar: {
+    width: 40, height: 40, borderRadius: 12, backgroundColor: '#1E293B',
+    justifyContent: 'center', alignItems: 'center',
   },
-  pinLabel: {
-    color: COLORS.white,
-    fontSize: 11,
-    fontWeight: 'bold',
-    marginTop: 4,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-    borderRadius: 4,
+  driverAvatarTxt: { fontSize: 20 },
+  driverName: { fontSize: 14, fontWeight: '800', color: COLORS.white },
+  driverSub: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
+  callBtn: {
+    backgroundColor: COLORS.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
   },
-  roadPath: {
-    position: 'absolute',
-    top: 122,
-    left: 45,
-    width: 250,
-    height: 3,
-    backgroundColor: '#475569',
-    transform: [{ rotate: '-17.5deg' }], // rotate to match nodes
-    transformOrigin: 'left top',
-  },
-  truckMarkerContainer: {
-    position: 'absolute',
-    zIndex: 20,
-    backgroundColor: COLORS.primary,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: COLORS.white,
-  },
-  truckEmojiMarker: {
-    fontSize: 13,
-  },
-  hudOverlay: {
-    position: 'absolute',
-    bottom: SPACING.sm,
-    left: SPACING.sm,
-    backgroundColor: 'rgba(15, 23, 42, 0.8)',
-    borderWidth: 1,
-    borderColor: COLORS.textMuted,
-    borderRadius: 8,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 4,
-  },
-  hudCoordinates: {
-    color: '#94A3B8',
-    fontSize: 10,
-    fontFamily: 'Courier',
-    fontWeight: 'bold',
-  },
-  hudEta: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginTop: 2,
-  },
-  simBtn: {
-    backgroundColor: COLORS.secondary,
-    borderRadius: 10,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  simBtnTxt: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  cardHeader: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: COLORS.textMuted,
-    letterSpacing: 1.5,
-    marginBottom: SPACING.md,
-    textTransform: 'uppercase',
-  },
-  driverRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: SPACING.md,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  avatarEmoji: {
-    fontSize: 20,
-  },
-  driverName: {
-    fontSize: 15.5,
-    fontWeight: '800',
-    color: COLORS.text,
-  },
-  driverSub: {
-    fontSize: 12.5,
-    color: COLORS.textMuted,
-    fontWeight: '500',
-  },
-  vehicleSection: {
-    marginTop: SPACING.md,
-    backgroundColor: COLORS.background,
-    padding: SPACING.md,
-    borderRadius: 10,
-  },
-  vehicleName: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: COLORS.text,
-  },
-  vehiclePlate: {
-    fontSize: 12.5,
-    color: COLORS.textMuted,
-    fontWeight: '600',
-    marginTop: 2,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: SPACING.md,
-    marginTop: SPACING.md,
-  },
-  contactBtn: {
-    flex: 1,
-    backgroundColor: COLORS.primary,
-    height: 40,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  contactBtnOutline: {
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: COLORS.border,
-  },
-  contactBtnTxt: {
-    color: COLORS.white,
-    fontSize: 12,
-    fontWeight: '800',
-  },
-  timelineContainer: {
-    paddingLeft: SPACING.xs,
-  },
-  timelineNode: {
-    flexDirection: 'row',
-  },
-  timelineIndicators: {
-    alignItems: 'center',
-    marginRight: SPACING.lg,
-  },
-  indicatorDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#CBD5E1', // gray-300
-    zIndex: 10,
-  },
-  indicatorDotDone: {
-    backgroundColor: COLORS.success,
-  },
-  indicatorDotCurrent: {
-    backgroundColor: COLORS.primary,
-    transform: [{ scale: 1.25 }],
-    borderWidth: 2,
-    borderColor: COLORS.white,
-  },
-  indicatorLine: {
-    width: 2,
-    height: 40,
-    backgroundColor: '#E2E8F0',
-  },
-  indicatorLineDone: {
-    backgroundColor: COLORS.success,
-  },
-  timelineDetails: {
-    flex: 1,
-    paddingBottom: 22,
-    marginTop: -2,
-  },
-  timelineLabel: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: COLORS.textLight,
-  },
-  timelineLabelDone: {
-    color: COLORS.text,
-  },
-  timelineNote: {
-    fontSize: 12,
-    color: COLORS.textMuted,
-    marginTop: 2,
-    fontWeight: '500',
-  },
+  callBtnTxt: { color: COLORS.white, fontSize: 12, fontWeight: '800' },
 });

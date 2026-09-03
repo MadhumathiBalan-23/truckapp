@@ -30,12 +30,12 @@ export const AdminDashboard: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Control Center" />
 
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} overScrollMode="never" bounces={true}>
         
         {/* Welcome Board */}
         <View style={styles.adminCard}>
           <Text style={styles.adminSub}>PLATFORM ADMINISTRATOR</Text>
-          <Text style={styles.adminTitle}>TruckGo Root Panel</Text>
+          <Text style={styles.adminTitle}>Trukora Control Center</Text>
           <Text style={styles.adminDesc}>Audit workspace accounts, verify commercial vehicles, and oversee system bookings.</Text>
         </View>
 

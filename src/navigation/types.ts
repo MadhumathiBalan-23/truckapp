@@ -1,10 +1,14 @@
+import { UserRole } from '../types/user';
 import { Truck } from '../types/truck';
 import { Booking } from '../types/booking';
 
 export type AuthParamList = {
-  Login: undefined;
-  Register: undefined;
+  Landing: undefined;
+  Login: { role?: UserRole } | undefined;
+  Register: { role?: UserRole } | undefined;
   ForgotPassword: undefined;
+  SearchTrucks: { pickup?: string; drop?: string; date?: string; time?: string } | undefined;
+  TruckDetails: { truckId: string };
 };
 
 export type CustomerParamList = {

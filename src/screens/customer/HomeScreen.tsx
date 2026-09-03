@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, FlatList, Image, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  SafeAreaView,
+  Platform,
+  StatusBar as RNStatusBar,
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerParamList } from '../../navigation/types';
@@ -29,305 +40,383 @@ export const HomeScreen: React.FC = () => {
 
   const [pickup, setPickup] = useState('Koyambedu, Chennai');
   const [drop, setDrop] = useState('Gandhipuram, Coimbatore');
-  const [date, setDate] = useState('2026-09-02');
+  const [date, setDate] = useState('2026-09-04');
   const [time, setTime] = useState('10:00 AM');
 
   const handleSearch = () => {
-    navigation.navigate('SearchTrucks', {
-      pickup,
-      drop,
-      date,
-      time,
-    });
+    navigation.navigate('SearchTrucks', { pickup, drop, date, time });
   };
 
   const handleCategoryPress = (category: TruckType) => {
-    navigation.navigate('SearchTrucks', {
-      pickup,
-      drop,
-      date,
-      time,
-    });
-    // This will open search results, filters can be applied
+    navigation.navigate('SearchTrucks', { pickup, drop, date, time });
   };
 
+  const topInset = Platform.OS === 'android' ? (RNStatusBar.currentHeight || 28) : 0;
+
   return (
-    <SafeAreaView style={COMMON_STYLES.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
-        {/* Header segment */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greetingText}>Good Morning, {user?.name || 'User'}</Text>
-            <View style={COMMON_STYLES.flexRow}>
-              <Text style={styles.locationPin}>📍</Text>
-              <Text style={styles.locationText}>Koyambedu Metro, Chennai</Text>
-            </View>
+    <View style={styles.rootContainer}>
+      <StatusBar style="light" />
+
+      {/* ══════ FIXED TOP HEADER (Never Scrolls) ══════ */}
+      <View style={[styles.fixedTopHeader, { paddingTop: topInset }]}>
+        <View style={styles.headerContent}>
+          <View style={styles.brandCol}>
+            <Text style={styles.brandNameFixed}>TRUKORA</Text>
+            <Text style={styles.brandSub}>Freight Network</Text>
           </View>
-          <TouchableOpacity
-            style={styles.notificationBtn}
-            onPress={() => (navigation as any).navigate('Notifications')}
-          >
-            <Text style={styles.notificationEmoji}>🔔</Text>
-            <View style={styles.notificationBadge} />
-          </TouchableOpacity>
+
+          <View style={styles.headerRight}>
+            <View style={styles.locationChip}>
+              <Text style={styles.locIcon}>📍</Text>
+              <Text style={styles.locText} numberOfLines={1}>Chennai</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.bellBtn}
+              onPress={() => (navigation as any).navigate('Notifications')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.bellEmoji}>🔔</Text>
+              <View style={styles.bellDot} />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.accentLine} />
+      </View>
+
+      {/* ══════ SCROLLABLE CONTENT ══════ */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        overScrollMode="never"
+        bounces={true}
+      >
+        {/* Greeting + Tagline */}
+        <View style={styles.greetSection}>
+          <Text style={styles.greetHi}>Hello, {user?.name || 'Customer'} 👋</Text>
+          <Text style={styles.greetTagline}>Move anything. Anywhere. Instantly.</Text>
         </View>
 
-        {/* Tagline */}
-        <View style={styles.taglineCard}>
-          <Text style={styles.taglineTitle}>Move anything. Anywhere. Instantly.</Text>
-          <Text style={styles.taglineSub}>Affordable rental trucks at your fingertips.</Text>
-        </View>
-
-        {/* Search Panel */}
+        {/* Route Search Card */}
         <View style={styles.searchCard}>
-          <Text style={styles.searchHeader}>Where do you need a truck?</Text>
-          
-          <View style={styles.inputField}>
-            <Text style={styles.inputIcon}>🟢</Text>
-            <TextInput
-              style={styles.textInput}
-              value={pickup}
-              onChangeText={setPickup}
-              placeholder="Pickup Location"
-            />
-          </View>
+          <Text style={styles.searchTitle}>Book Freight Ride</Text>
 
-          <View style={styles.inputField}>
-            <Text style={styles.inputIcon}>🔴</Text>
-            <TextInput
-              style={styles.textInput}
-              value={drop}
-              onChangeText={setDrop}
-              placeholder="Drop Location"
-            />
-          </View>
-
-          <View style={styles.timeRow}>
-            <View style={[styles.inputField, { flex: 1, marginBottom: 0 }]}>
-              <Text style={styles.inputIcon}>📅</Text>
-              <TextInput
-                style={styles.textInput}
-                value={date}
-                onChangeText={setDate}
-                placeholder="Date"
-              />
+          <View style={styles.routeRow}>
+            <View style={styles.dotsCol}>
+              <View style={styles.greenDot} />
+              <View style={styles.dotLine} />
+              <View style={styles.redSquare} />
             </View>
-            <View style={[styles.inputField, { flex: 1, marginBottom: 0 }]}>
-              <Text style={styles.inputIcon}>⏰</Text>
-              <TextInput
-                style={styles.textInput}
-                value={time}
-                onChangeText={setTime}
-                placeholder="Time"
-              />
+            <View style={styles.inputsCol}>
+              <View style={styles.inputBox}>
+                <TextInput
+                  style={styles.inputText}
+                  value={pickup}
+                  onChangeText={setPickup}
+                  placeholder="Pickup Location"
+                  placeholderTextColor={COLORS.textLight}
+                />
+              </View>
+              <View style={styles.inputBox}>
+                <TextInput
+                  style={styles.inputText}
+                  value={drop}
+                  onChangeText={setDrop}
+                  placeholder="Drop Location"
+                  placeholderTextColor={COLORS.textLight}
+                />
+              </View>
             </View>
           </View>
 
-          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-            <Text style={styles.searchBtnText}>Find Available Trucks</Text>
+          <View style={styles.dateRow}>
+            <View style={styles.dateField}>
+              <Text style={styles.fieldEmoji}>📅</Text>
+              <TextInput style={styles.dateInput} value={date} onChangeText={setDate} placeholder="Date" placeholderTextColor={COLORS.textLight} />
+            </View>
+            <View style={styles.dateField}>
+              <Text style={styles.fieldEmoji}>⏰</Text>
+              <TextInput style={styles.dateInput} value={time} onChangeText={setTime} placeholder="Time" placeholderTextColor={COLORS.textLight} />
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.searchBtn} onPress={handleSearch} activeOpacity={0.85}>
+            <Text style={styles.searchBtnTxt}>Find Available Trucks →</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Truck Categories Wheel */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Truck Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryScroll}>
+        {/* Fleet Categories */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Fleet Categories</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catScroll}>
             {CATEGORIES.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={styles.categoryCard}
-                onPress={() => handleCategoryPress(cat.id)}
-              >
-                <View style={styles.categoryEmojiBg}>
-                  <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
+              <TouchableOpacity key={cat.id} style={styles.catCard} onPress={() => handleCategoryPress(cat.id)} activeOpacity={0.8}>
+                <View style={styles.catCircle}>
+                  <Text style={styles.catEmoji}>{cat.emoji}</Text>
                 </View>
-                <Text style={styles.categoryLabel} numberOfLines={1}>{cat.id}</Text>
+                <Text style={styles.catLabel} numberOfLines={1}>{cat.id}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
-        {/* Drivers Near You / Trucks Near You */}
-        <View style={[styles.sectionContainer, { marginBottom: SPACING.xxl }]}>
-          <Text style={styles.sectionTitle}>Available Trucks Near You</Text>
+        {/* Available Trucks */}
+        <View style={[styles.section, { marginBottom: 30 }]}>
+          <Text style={styles.sectionTitle}>Available Near You</Text>
           {trucks.length === 0 ? (
-            <Text style={styles.emptyText}>No registered trucks available at the moment.</Text>
+            <Text style={styles.emptyTxt}>No trucks available at the moment.</Text>
           ) : (
-            trucks.slice(0, 3).map((truck) => (
+            trucks.slice(0, 4).map((truck) => (
               <TruckCard
                 key={truck.id}
                 truck={truck}
                 onPress={() => navigation.navigate('TruckDetails', { truckId: truck.id })}
-                onBookNow={() =>
-                  navigation.navigate('TruckDetails', { truckId: truck.id })
-                }
+                onBookNow={() => navigation.navigate('TruckDetails', { truckId: truck.id })}
               />
             ))
           )}
         </View>
-
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    padding: SPACING.lg,
+  rootContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  header: {
+  fixedTopHeader: {
+    backgroundColor: COLORS.secondaryDark,
+    zIndex: 100,
+    ...SHADOWS.md,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: SPACING.lg,
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.sm + 2,
   },
-  greetingText: {
-    fontSize: 14,
-    color: COLORS.textMuted,
-    fontWeight: '600',
+  brandCol: {},
+  brandNameFixed: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: COLORS.white,
+    letterSpacing: 2.5,
   },
-  locationPin: {
-    fontSize: 14,
-    marginRight: 4,
-  },
-  locationText: {
-    fontSize: 15,
+  brandSub: {
+    fontSize: 9,
     fontWeight: '700',
-    color: COLORS.text,
+    color: COLORS.primary,
+    letterSpacing: 1.5,
+    marginTop: -1,
   },
-  notificationBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.white,
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  locationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    gap: 4,
+  },
+  locIcon: { fontSize: 12 },
+  locText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#E2E8F0',
+  },
+  bellBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: '#1E293B',
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.sm,
+    borderWidth: 1,
+    borderColor: '#334155',
     position: 'relative',
   },
-  notificationEmoji: {
-    fontSize: 18,
-  },
-  notificationBadge: {
+  bellEmoji: { fontSize: 16 },
+  bellDot: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 8,
-    height: 8,
+    top: 7,
+    right: 7,
+    width: 7,
+    height: 7,
     borderRadius: 4,
-    backgroundColor: COLORS.danger,
+    backgroundColor: COLORS.primary,
   },
-  taglineCard: {
-    backgroundColor: COLORS.secondary,
-    borderRadius: 16,
-    padding: SPACING.lg,
+  accentLine: {
+    height: 2,
+    backgroundColor: COLORS.primary,
+  },
+  scrollContent: {
+    paddingTop: SPACING.md,
+  },
+  greetSection: {
+    paddingHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
   },
-  taglineTitle: {
-    color: COLORS.white,
-    fontSize: 18,
+  greetHi: {
+    fontSize: 20,
     fontWeight: '800',
+    color: COLORS.secondary,
   },
-  taglineSub: {
-    color: COLORS.textLight,
-    fontSize: 13,
-    marginTop: 4,
+  greetTagline: {
+    fontSize: 12.5,
+    color: COLORS.textMuted,
     fontWeight: '500',
+    marginTop: 2,
   },
   searchCard: {
     backgroundColor: COLORS.card,
-    borderRadius: 24,
+    borderRadius: 20,
     padding: SPACING.lg,
-    ...SHADOWS.md,
+    marginHorizontal: SPACING.lg,
+    ...SHADOWS.lg,
     borderWidth: 1,
     borderColor: COLORS.border,
     marginBottom: SPACING.lg,
   },
-  searchHeader: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: COLORS.text,
+  searchTitle: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: COLORS.secondary,
     marginBottom: SPACING.md,
   },
-  inputField: {
+  routeRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: SPACING.sm,
+  },
+  dotsCol: {
+    width: 22,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  greenDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: COLORS.success,
+  },
+  dotLine: {
+    width: 2,
+    height: 32,
+    backgroundColor: COLORS.border,
+    marginVertical: 3,
+  },
+  redSquare: {
+    width: 11,
+    height: 11,
+    borderRadius: 3,
+    backgroundColor: COLORS.danger,
+  },
+  inputsCol: {
+    flex: 1,
+    gap: 6,
+  },
+  inputBox: {
     backgroundColor: COLORS.background,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.border,
     borderRadius: 12,
     paddingHorizontal: SPACING.md,
-    height: 48,
-    marginBottom: SPACING.sm,
+    height: 46,
+    justifyContent: 'center',
   },
-  inputIcon: {
+  inputText: {
     fontSize: 14,
-    marginRight: SPACING.sm,
+    fontWeight: '700',
+    color: COLORS.secondary,
   },
-  textInput: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.text,
-    fontWeight: '600',
-  },
-  timeRow: {
+  dateRow: {
     flexDirection: 'row',
-    gap: SPACING.sm,
+    gap: 8,
     marginBottom: SPACING.md,
+  },
+  dateField: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.md,
+    height: 44,
+  },
+  fieldEmoji: {
+    fontSize: 13,
+    marginRight: 6,
+  },
+  dateInput: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.secondary,
   },
   searchBtn: {
     backgroundColor: COLORS.primary,
-    borderRadius: 12,
-    height: 48,
+    borderRadius: 14,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    ...SHADOWS.sm,
+    ...SHADOWS.md,
   },
-  searchBtnText: {
+  searchBtnTxt: {
     color: COLORS.white,
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 14.5,
+    fontWeight: '900',
+    letterSpacing: 0.4,
   },
-  sectionContainer: {
-    marginTop: SPACING.md,
+  section: {
+    paddingHorizontal: SPACING.lg,
+    marginTop: SPACING.xs,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
-    color: COLORS.text,
+    color: COLORS.secondary,
     marginBottom: SPACING.md,
   },
-  categoryScroll: {
+  catScroll: {
     paddingRight: SPACING.xl,
-    gap: SPACING.sm,
+    gap: 8,
+    marginBottom: SPACING.md,
   },
-  categoryCard: {
-    width: 80,
+  catCard: {
+    width: 78,
     alignItems: 'center',
   },
-  categoryEmojiBg: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  catCircle: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: COLORS.border,
     ...SHADOWS.sm,
   },
-  categoryEmoji: {
-    fontSize: 28,
-  },
-  categoryLabel: {
-    fontSize: 12,
+  catEmoji: { fontSize: 26 },
+  catLabel: {
+    fontSize: 11,
     fontWeight: '700',
-    color: COLORS.text,
-    marginTop: 6,
+    color: COLORS.secondary,
+    marginTop: 5,
     textAlign: 'center',
   },
-  emptyText: {
+  emptyTxt: {
     fontStyle: 'italic',
     color: COLORS.textMuted,
     paddingVertical: SPACING.md,

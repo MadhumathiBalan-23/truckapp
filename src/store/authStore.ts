@@ -17,7 +17,7 @@ interface AuthState {
   setRehydrated: (rehydrated: boolean) => void;
   login: (emailOrMobile: string, password: string) => Promise<boolean>;
   sendOtp: (mobile: string) => Promise<{ success: boolean; otp: string; message: string }>;
-  verifyOtpAndLogin: (mobile: string, otpCode: string) => Promise<boolean>;
+  verifyOtpAndLogin: (mobile: string, otpCode: string, targetRole?: UserRole) => Promise<boolean>;
   register: (name: string, mobile: string, email: string, password: string, role: UserRole) => Promise<boolean>;
   registerWithOtp: (name: string, mobile: string, email: string, password: string, role: UserRole, otpCode: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -126,7 +126,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       // Verify OTP & Login directly via Mobile Number
-      verifyOtpAndLogin: async (mobile: string, otpCode: string) => {
+      verifyOtpAndLogin: async (mobile: string, otpCode: string, targetRole?: UserRole) => {
         set({ isLoading: true, error: null });
         try {
           await new Promise((resolve) => setTimeout(resolve, 700));
@@ -140,22 +140,29 @@ export const useAuthStore = create<AuthState>()(
           // Search for existing user with this mobile number
           let foundUserKey = Object.keys(MOCK_USERS).find((key) => MOCK_USERS[key].mobile === cleanMobile);
 
-          // Auto-create customer if not found for smooth seamless testing
+          const roleToAssign: UserRole = targetRole || (foundUserKey ? MOCK_USERS[foundUserKey].role : 'CUSTOMER');
+          const rolePermissions = ROLE_PRIVILEGES[roleToAssign].permissions;
+
+          // Auto-create user if not found for smooth seamless testing under target role
           if (!foundUserKey) {
             const newId = `USR${String(Object.keys(MOCK_USERS).length + 1).padStart(3, '0')}`;
             MOCK_USERS[newId] = {
               id: newId,
-              name: `User ${cleanMobile.slice(-4)}`,
-              email: `user${cleanMobile}@truckgo.com`,
+              name: `${roleToAssign.charAt(0) + roleToAssign.slice(1).toLowerCase()} User (${cleanMobile.slice(-4)})`,
+              email: `${roleToAssign.toLowerCase()}${cleanMobile}@truckgo.com`,
               mobile: cleanMobile,
               mobileVerified: true,
-              role: 'CUSTOMER',
+              role: roleToAssign,
               status: 'ACTIVE',
               createdAt: new Date().toISOString(),
               passwordHash: '123456',
-              privileges: ROLE_PRIVILEGES.CUSTOMER.permissions,
+              privileges: rolePermissions,
             };
             foundUserKey = newId;
+          } else if (targetRole && MOCK_USERS[foundUserKey].role !== targetRole) {
+            // Update role if explicitly selected for this login session
+            MOCK_USERS[foundUserKey].role = targetRole;
+            MOCK_USERS[foundUserKey].privileges = rolePermissions;
           }
 
           const targetUser = MOCK_USERS[foundUserKey];
