@@ -1,9 +1,25 @@
 import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 export const COLORS = {
+  // Primary Palette: High-Vis Logistics Orange & Deep Blue Navy
   primary: '#FF6500', // high-vis logistics orange
-  primaryLight: '#FFF0E6', // pastel orange for backgrounds
-  secondary: '#1A3038', // dark slate for navy theme contrast
+  primaryDark: '#E05500', // deep vibrant orange hover/pressed
+  primaryLight: '#FFF2E8', // soft orange tint for backgrounds & badges
+  
+  secondary: '#0F172A', // Deep slate navy (Deep Blue core)
+  secondaryDark: '#0A192F', // Deepest midnight blue background
+  secondaryLight: '#1E293B', // Rich card navy / header blue
+  
+  accentBlue: '#2563EB', // Bright cobalt blue accent
+  accentBlueLight: '#EFF6FF',
+  
+  // Role Specific Palette
+  roleCustomer: '#FF6500', // Orange for Customer
+  roleVendor: '#0EA5E9', // Sky Blue for Vehicle Owner
+  roleDriver: '#10B981', // Emerald Green for Driver
+  roleAdmin: '#8B5CF6', // Royal Purple for Admin
+  
+  // Status Colors
   success: '#10B981', // green for approved/completed
   successLight: '#ECFDF5',
   warning: '#F59E0B', // amber for pending/loading
@@ -12,8 +28,11 @@ export const COLORS = {
   dangerLight: '#FEF2F2',
   info: '#3B82F6', // blue for in-transit/info
   infoLight: '#EFF6FF',
+  
+  // Neutral Colors
   background: '#F8FAFC', // light grey background
   card: '#FFFFFF', // card back color
+  cardNavy: '#0F172A', // navy card variant
   text: '#0F172A', // dark text slate-900
   textMuted: '#64748B', // muted text slate-500
   textLight: '#94A3B8', // slate-400

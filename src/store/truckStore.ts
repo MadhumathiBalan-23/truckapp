@@ -5,6 +5,7 @@ import { MOCK_TRUCKS } from '../data/mockTrucks';
 interface TruckState {
   trucks: Truck[];
   registerTruck: (truckData: Omit<Truck, 'id' | 'status' | 'rating' | 'totalTrips'>) => Promise<string>;
+  addTruck: (truckData: Omit<Truck, 'id' | 'status' | 'rating' | 'totalTrips'>) => Promise<boolean>;
   updateTruckStatus: (truckId: string, status: 'APPROVED' | 'REJECTED') => Promise<void>;
   updateTruckDriverAvailability: (truckId: string, available: boolean, driverId?: string) => Promise<void>;
   updateTruckDetails: (truckId: string, updates: Partial<Truck>) => Promise<void>;
@@ -34,6 +35,17 @@ export const useTruckStore = create<TruckState>((set, get) => ({
     }));
 
     return newId;
+  },
+
+  addTruck: async (truckData: any) => {
+    const ownerId = truckData.vendorId || truckData.ownerId || 'USR002';
+    const id = await get().registerTruck({
+      ...truckData,
+      ownerId,
+      fuelType: truckData.fuelType === 'EV' ? 'Electric' : truckData.fuelType,
+      bodyType: truckData.bodyType === 'Container' ? 'Closed Container' : truckData.bodyType === 'Open' ? 'Open Body' : 'Flatbed',
+    });
+    return !!id;
   },
 
   updateTruckStatus: async (truckId, status) => {

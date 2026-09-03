@@ -1,0 +1,65 @@
+﻿src/screens/customer/BookingScreen.tsx(246,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/customer/PaymentScreen.tsx(121,32): error TS7006: Parameter 'setRole' implicitly has an 'any' type.
+src/screens/customer/PaymentScreen.tsx(207,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/customer/PaymentScreen.tsx(217,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/driver/ActiveTripScreen.tsx(226,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/driver/DriverDashboard.tsx(171,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/driver/DriverDashboard.tsx(224,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/EarningsScreen.tsx(184,5): error TS2322: Type '"750"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/EarningsScreen.tsx(208,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/EarningsScreen.tsx(244,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/EarningsScreen.tsx(255,5): error TS2322: Type '"850"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/MyTrucksScreen.tsx(21,37): error TS2339: Property 'vendorId' does not exist on type 'Truck'.
+src/screens/vendor/RegisterTruckScreen.tsx(18,51): error TS2339: Property 'addTruck' does not exist on type 'TruckState'.
+src/screens/vendor/RegisterTruckScreen.tsx(110,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextProps): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+  Overload 2 of 2, '(props: TextProps, context: any): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/RegisterTruckScreen.tsx(140,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextProps): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+  Overload 2 of 2, '(props: TextProps, context: any): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/RegisterTruckScreen.tsx(161,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextProps): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+  Overload 2 of 2, '(props: TextProps, context: any): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/RegisterTruckScreen.tsx(195,17): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: TextProps): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+  Overload 2 of 2, '(props: TextProps, context: any): Text', gave the following error.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'StyleProp<TextStyle>'.
+      Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'TextStyle'.
+        Types of property 'fontWeight' are incompatible.
+          Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/RegisterTruckScreen.tsx(231,34): error TS2345: Argument of type '{ container: { padding: number; }; cardHeader: { fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }; row: { flexDirection: "row"; gap: number; }; ... 14 more ...; submitBtn: { ...; }; }' is not assignable to parameter of type '{ container: { padding: number; }; cardHeader: { fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }; row: { flexDirection: "row"; gap: number; }; ... 14 more ...; submitBtn: { ...; }; } & NamedStyles<...>'.
+  Property 'cardHeader' is incompatible with index signature.
+    Type '{ fontSize: number; fontWeight: "705"; color: string; letterSpacing: number; marginBottom: number; textTransform: "uppercase"; }' is not assignable to type 'ViewStyle | TextStyle | ImageStyle'.
+      Types of property 'fontWeight' are incompatible.
+        Type '"705"' is not assignable to type '"bold" | 600 | 500 | 700 | 800 | "normal" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | 100 | 200 | 300 | 400 | 900 | "ultralight" | "thin" | "light" | "medium" | ... 6 more ... | undefined'.
+src/screens/vendor/VendorBookingsScreen.tsx(54,32): error TS2339: Property 'assignDriverToBooking' does not exist on type 'BookingState'.
+src/screens/vendor/VendorDashboard.tsx(24,37): error TS2339: Property 'vendorId' does not exist on type 'Truck'.
+src/screens/vendor/VendorDashboard.tsx(28,39): error TS2339: Property 'vendorId' does not exist on type 'Booking'.

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
-import { mockUsers } from '../../data/mockUsers';
+import { MOCK_USERS } from '../../data/mockUsers';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
 import { Header } from '../../components/Header';
 import { UserRole } from '../../types/user';
@@ -10,7 +10,9 @@ type FilterRoleType = 'ALL' | 'CUSTOMER' | 'VENDOR' | 'DRIVER' | 'ADMIN';
 export const UserManagementScreen: React.FC = () => {
   const [filterRole, setFilterRole] = useState<FilterRoleType>('ALL');
 
-  const filteredUsers = mockUsers.filter((u) => {
+  const allUsersList = Object.values(MOCK_USERS);
+
+  const filteredUsers = allUsersList.filter((u) => {
     if (filterRole === 'ALL') return true;
     return u.role === filterRole;
   });
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 15,
-    fontWeight: '705',
+    fontWeight: '700',
     color: COLORS.text,
   },
   userEmail: {

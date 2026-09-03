@@ -27,7 +27,7 @@ export const TrackingScreen: React.FC = () => {
 
   // Simulate movement over time if simulation active
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: any;
     if (isSimulating && booking) {
       interval = setInterval(() => {
         setSimProgress((prev) => {

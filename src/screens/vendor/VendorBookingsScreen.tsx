@@ -51,7 +51,7 @@ export const VendorBookingsScreen: React.FC = () => {
   const handleSelectDriver = (driverName: string, driverMobile: string) => {
     if (!selectedBooking) return;
 
-    useBookingStore.getState().assignDriverToBooking(selectedBooking.id, driverName, driverMobile);
+    useBookingStore.getState().assignDriverToBooking(selectedBooking.id, 'DRV001', driverName, driverMobile);
     setDriverSelectVisible(false);
     setSelectedBooking(null);
     Alert.alert('Success', `Driver ${driverName} has been assigned to transport this booking.`);

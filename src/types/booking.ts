@@ -26,6 +26,7 @@ export interface Booking {
   customerName: string;
   customerMobile: string;
   truckId: string;
+  vendorId?: string;
   truckDetails: Truck;
   pickupLocation: string;
   dropLocation: string;

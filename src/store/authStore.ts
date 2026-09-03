@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User, UserRole } from '../types/user';
+import { User, UserRole, ROLE_PRIVILEGES } from '../types/user';
 import { MOCK_USERS } from '../data/mockUsers';
 
 interface AuthState {
@@ -10,10 +10,16 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   rehydrated: boolean;
+  activeOtpCode: string | null;
+  otpTargetMobile: string | null;
+  
   initAuth: () => void;
   setRehydrated: (rehydrated: boolean) => void;
   login: (emailOrMobile: string, password: string) => Promise<boolean>;
+  sendOtp: (mobile: string) => Promise<{ success: boolean; otp: string; message: string }>;
+  verifyOtpAndLogin: (mobile: string, otpCode: string) => Promise<boolean>;
   register: (name: string, mobile: string, email: string, password: string, role: UserRole) => Promise<boolean>;
+  registerWithOtp: (name: string, mobile: string, email: string, password: string, role: UserRole, otpCode: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
   updateUserStatus: (userId: string, status: 'ACTIVE' | 'INACTIVE') => void;
@@ -27,6 +33,8 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
       rehydrated: false,
+      activeOtpCode: null,
+      otpTargetMobile: null,
 
       initAuth: () => {
         set({ rehydrated: true });
@@ -34,41 +42,44 @@ export const useAuthStore = create<AuthState>()(
 
       setRehydrated: (rehydrated) => set({ rehydrated }),
 
+      // Password based login
       login: async (emailOrMobile, password) => {
         set({ isLoading: true, error: null });
         try {
-          // Simulate network delay
-          await new Promise((resolve) => setTimeout(resolve, 800));
+          await new Promise((resolve) => setTimeout(resolve, 600));
 
-          // Find user by email or mobile
+          const cleanMobileOrEmail = emailOrMobile.trim();
           const foundUserKey = Object.keys(MOCK_USERS).find((key) => {
             const user = MOCK_USERS[key];
             return (
-              (user.email.toLowerCase() === emailOrMobile.toLowerCase() || user.mobile === emailOrMobile) &&
+              (user.email.toLowerCase() === cleanMobileOrEmail.toLowerCase() || user.mobile === cleanMobileOrEmail) &&
               user.passwordHash === password
             );
           });
 
           if (!foundUserKey) {
-            set({ isLoading: false, error: 'Invalid credentials. Try again!' });
+            set({ isLoading: false, error: 'Invalid credentials. Please check details or use OTP Login.' });
             return false;
           }
 
           const targetUser = MOCK_USERS[foundUserKey];
 
           if (targetUser.status === 'INACTIVE') {
-            set({ isLoading: false, error: 'Your account has been deactivated. Please contact support.' });
+            set({ isLoading: false, error: 'Your account has been deactivated. Please contact admin.' });
             return false;
           }
 
+          const roleMeta = ROLE_PRIVILEGES[targetUser.role];
           const userData: User = {
             id: targetUser.id,
             name: targetUser.name,
             email: targetUser.email,
             mobile: targetUser.mobile,
+            mobileVerified: true,
             role: targetUser.role,
             status: targetUser.status,
             createdAt: targetUser.createdAt,
+            privileges: targetUser.privileges || roleMeta?.permissions || [],
           };
 
           set({
@@ -83,14 +94,125 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      // Request OTP to Mobile Number
+      sendOtp: async (mobile: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          const cleanMobile = mobile.replace(/[^0-9]/g, '');
+
+          if (cleanMobile.length < 10) {
+            set({ isLoading: false, error: 'Please enter a valid 10-digit mobile number' });
+            return { success: false, otp: '', message: 'Invalid mobile number' };
+          }
+
+          // Generate or use static demo OTP for testing ease
+          const simulatedOtp = '1234';
+          set({
+            activeOtpCode: simulatedOtp,
+            otpTargetMobile: cleanMobile,
+            isLoading: false,
+          });
+
+          return {
+            success: true,
+            otp: simulatedOtp,
+            message: `OTP sent successfully to +91 ${cleanMobile}`,
+          };
+        } catch (err: any) {
+          set({ isLoading: false, error: 'Failed to send OTP' });
+          return { success: false, otp: '', message: err?.message || 'Failed to send OTP' };
+        }
+      },
+
+      // Verify OTP & Login directly via Mobile Number
+      verifyOtpAndLogin: async (mobile: string, otpCode: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 700));
+          const cleanMobile = mobile.replace(/[^0-9]/g, '');
+
+          if (otpCode !== '1234' && otpCode !== get().activeOtpCode) {
+            set({ isLoading: false, error: 'Invalid OTP Code entered! Use 1234 for demo testing.' });
+            return false;
+          }
+
+          // Search for existing user with this mobile number
+          let foundUserKey = Object.keys(MOCK_USERS).find((key) => MOCK_USERS[key].mobile === cleanMobile);
+
+          // Auto-create customer if not found for smooth seamless testing
+          if (!foundUserKey) {
+            const newId = `USR${String(Object.keys(MOCK_USERS).length + 1).padStart(3, '0')}`;
+            MOCK_USERS[newId] = {
+              id: newId,
+              name: `User ${cleanMobile.slice(-4)}`,
+              email: `user${cleanMobile}@truckgo.com`,
+              mobile: cleanMobile,
+              mobileVerified: true,
+              role: 'CUSTOMER',
+              status: 'ACTIVE',
+              createdAt: new Date().toISOString(),
+              passwordHash: '123456',
+              privileges: ROLE_PRIVILEGES.CUSTOMER.permissions,
+            };
+            foundUserKey = newId;
+          }
+
+          const targetUser = MOCK_USERS[foundUserKey];
+
+          if (targetUser.status === 'INACTIVE') {
+            set({ isLoading: false, error: 'Your account has been deactivated.' });
+            return false;
+          }
+
+          const roleMeta = ROLE_PRIVILEGES[targetUser.role];
+          const userData: User = {
+            id: targetUser.id,
+            name: targetUser.name,
+            email: targetUser.email,
+            mobile: targetUser.mobile,
+            mobileVerified: true,
+            role: targetUser.role,
+            status: targetUser.status,
+            createdAt: targetUser.createdAt,
+            privileges: targetUser.privileges || roleMeta?.permissions || [],
+          };
+
+          set({
+            token: 'jwt_mock_token_for_' + targetUser.id,
+            user: userData,
+            isLoading: false,
+            activeOtpCode: null,
+            otpTargetMobile: null,
+          });
+          return true;
+        } catch (err: any) {
+          set({ isLoading: false, error: err?.message || 'OTP verification failed' });
+          return false;
+        }
+      },
+
+      // Standard Registration
       register: async (name, mobile, email, password, role) => {
+        return get().registerWithOtp(name, mobile, email, password, role, '1234');
+      },
+
+      // OTP verified Registration
+      registerWithOtp: async (name, mobile, email, password, role, otpCode) => {
         set({ isLoading: true, error: null });
         try {
           await new Promise((resolve) => setTimeout(resolve, 800));
 
+          if (otpCode !== '1234' && otpCode !== get().activeOtpCode) {
+            set({ isLoading: false, error: 'Invalid OTP Code entered. Use 1234.' });
+            return false;
+          }
+
+          const cleanMobile = mobile.replace(/[^0-9]/g, '');
+
           // Check if email or mobile exists in MOCK_USERS
           const exists = Object.values(MOCK_USERS).some(
-            (u) => u.email.toLowerCase() === email.toLowerCase() || u.mobile === mobile
+            (u) => u.email.toLowerCase() === email.toLowerCase() || u.mobile === cleanMobile
           );
 
           if (exists) {
@@ -99,33 +221,40 @@ export const useAuthStore = create<AuthState>()(
           }
 
           const newId = `USR${String(Object.keys(MOCK_USERS).length + 1).padStart(3, '0')}`;
+          const roleMeta = ROLE_PRIVILEGES[role];
 
-          // Mutate the mock database directly for session persistence
+          // Store new registered user in mock database
           MOCK_USERS[newId] = {
             id: newId,
             name,
             email,
-            mobile,
+            mobile: cleanMobile,
+            mobileVerified: true,
             role,
             status: 'ACTIVE',
             createdAt: new Date().toISOString(),
             passwordHash: password,
+            privileges: roleMeta?.permissions || [],
           };
 
           const userData: User = {
             id: newId,
             name,
             email,
-            mobile,
+            mobile: cleanMobile,
+            mobileVerified: true,
             role,
             status: 'ACTIVE',
             createdAt: MOCK_USERS[newId].createdAt,
+            privileges: roleMeta?.permissions || [],
           };
 
           set({
             token: 'jwt_mock_token_for_' + newId,
             user: userData,
             isLoading: false,
+            activeOtpCode: null,
+            otpTargetMobile: null,
           });
           return true;
         } catch (err: any) {
@@ -135,16 +264,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        set({ token: null, user: null, error: null });
+        set({ token: null, user: null, error: null, activeOtpCode: null, otpTargetMobile: null });
       },
 
       clearError: () => set({ error: null }),
 
-      // Admin user management helper
       updateUserStatus: (userId, status) => {
         if (MOCK_USERS[userId]) {
           MOCK_USERS[userId].status = status;
-          // In case the currently logged-in user status changed (for mock tests)
           const currentUser = get().user;
           if (currentUser && currentUser.id === userId) {
             set({

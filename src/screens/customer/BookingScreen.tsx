@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.primary,
   },
   submitBtn: {

@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   actionBtnTxt: {
     color: COLORS.white,
-    fontWeight: '850',
+    fontWeight: '800',
     fontSize: 14,
   },
   completedBanner: {

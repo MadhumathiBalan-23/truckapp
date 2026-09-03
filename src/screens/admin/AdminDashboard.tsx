@@ -6,7 +6,7 @@ import { AdminParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
 import { useTruckStore } from '../../store/truckStore';
 import { useBookingStore } from '../../store/bookingStore';
-import { mockUsers } from '../../data/mockUsers';
+import { MOCK_USERS } from '../../data/mockUsers';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
 import { Header } from '../../components/Header';
 import { StatusBadge } from '../../components/StatusBadge';
@@ -44,7 +44,7 @@ export const AdminDashboard: React.FC = () => {
         <View style={styles.grid}>
           <View style={styles.gridCell}>
             <Text style={styles.cellEmoji}>👥</Text>
-            <Text style={styles.cellValue}>{mockUsers.length}</Text>
+            <Text style={styles.cellValue}>{Object.keys(MOCK_USERS).length}</Text>
             <Text style={styles.cellLabel}>Active Accounts</Text>
           </View>
           <View style={styles.gridCell}>
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
     marginVertical: SPACING.md,
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, SafeAreaView, ScrollView } from 'react-native';
 import { useBookingStore } from '../../store/bookingStore';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     padding: SPACING.lg,
   },
   balanceCard: {
-    backgroundColor: '#0F172A', // dark blue/gray elegant panel
+    backgroundColor: '#0F172A',
     borderRadius: 20,
     padding: SPACING.lg,
     alignItems: 'center',
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     fontSize: 11,
-    fontWeight: '750',
+    fontWeight: '700',
     color: COLORS.textMuted,
     letterSpacing: 1.5,
     marginBottom: SPACING.md,
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   listTitle: {
     fontSize: 16,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
     marginBottom: SPACING.md,
     marginTop: SPACING.md,
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   },
   transRoute: {
     fontSize: 14,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
     marginVertical: 2,
   },
@@ -252,8 +252,8 @@ const styles = StyleSheet.create({
   },
   transAmount: {
     fontSize: 15.5,
-    fontWeight: '850',
-    color: '#059669', // green-600
+    fontWeight: '800',
+    color: '#059669',
   },
   transStatus: {
     fontSize: 10,
@@ -272,4 +272,3 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dangerLight,
   },
 });
-import { ScrollView } from 'react-native';

@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   sectionHeader: {
     fontSize: 16,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
     marginBottom: SPACING.md,
     marginTop: SPACING.sm,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   navigateBtnTxt: {
     color: COLORS.white,
     fontSize: 12.5,
-    fontWeight: '850',
+    fontWeight: '800',
   },
   emptyCard: {
     backgroundColor: COLORS.card,

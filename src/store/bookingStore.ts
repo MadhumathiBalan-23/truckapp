@@ -10,6 +10,7 @@ interface BookingState {
   vendorAcceptBooking: (bookingId: string) => Promise<void>;
   vendorRejectBooking: (bookingId: string) => Promise<void>;
   assignDriver: (bookingId: string, driverId: string, driverName: string, driverMobile: string) => Promise<void>;
+  assignDriverToBooking: (bookingId: string, driverId: string, driverName: string, driverMobile: string) => Promise<void>;
   updateBookingStatus: (bookingId: string, status: BookingStatus, note?: string) => Promise<void>;
   completePayment: (bookingId: string, method: Booking['paymentMethod']) => Promise<void>;
   submitRating: (bookingId: string, rating: number, review: string) => Promise<void>;
@@ -113,6 +114,10 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     }));
     // Set initial driver coordinates at pickup point for demo
     get().updateLiveLocation(bookingId, 13.0727, 80.2007); // Mock pickup area Koyambedu
+  },
+
+  assignDriverToBooking: async (bookingId, driverId, driverName, driverMobile) => {
+    return get().assignDriver(bookingId, driverId, driverName, driverMobile);
   },
 
   updateBookingStatus: async (bookingId, status, note) => {

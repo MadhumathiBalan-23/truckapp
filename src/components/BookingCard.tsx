@@ -6,7 +6,7 @@ import { StatusBadge } from './StatusBadge';
 
 interface BookingCardProps {
   booking: Booking;
-  onPress: () => void;
+  onPress?: () => void;
   actionText?: string;
   onActionPress?: () => void;
 }

@@ -18,6 +18,7 @@ export interface TruckDocuments {
 export interface Truck {
   id: string;
   ownerId: string; // Vendor user ID
+  vendorId?: string;
   truckNumber: string;
   truckType: TruckType;
   brand: string;

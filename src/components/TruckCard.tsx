@@ -6,7 +6,7 @@ import { StatusBadge } from './StatusBadge';
 
 interface TruckCardProps {
   truck: Truck;
-  onPress: () => void;
+  onPress?: () => void;
   onBookNow?: () => void;
 }
 

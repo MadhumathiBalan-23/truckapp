@@ -118,7 +118,7 @@ export const PaymentScreen: React.FC = () => {
               <TouchableOpacity
                 key={method}
                 style={[styles.methodCard, isSelected ? styles.methodCardActive : null]}
-                onPress={() => setRole => setPaymentMethod(method)}
+                onPress={() => setPaymentMethod(method)}
                 activeOpacity={0.8}
               >
                 <Text style={styles.methodIcon}>{iconText}</Text>
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
   },
   totalValue: {
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   methodHeader: {
     fontSize: 15,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
     marginBottom: SPACING.md,
   },

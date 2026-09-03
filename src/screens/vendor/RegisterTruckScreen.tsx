@@ -52,6 +52,7 @@ export const RegisterTruckScreen: React.FC = () => {
 
     try {
       const success = await addTruck({
+        ownerId: user?.id || 'USR002',
         vendorId: user?.id || 'USR002',
         truckNumber,
         truckType,
@@ -59,8 +60,8 @@ export const RegisterTruckScreen: React.FC = () => {
         model,
         year: parseInt(year) || 2024,
         capacity,
-        fuelType,
-        bodyType,
+        fuelType: (fuelType === 'EV' ? 'Electric' : fuelType) as any,
+        bodyType: (bodyType === 'Container' ? 'Closed Container' : bodyType === 'Open' ? 'Open Body' : 'Flatbed') as any,
         pricePerKm: parseFloat(pricePerKm) || 15,
         pricePerDay: parseFloat(pricePerDay) || 2000,
         currentLocation,
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     fontSize: 11,
-    fontWeight: '705',
+    fontWeight: '700',
     color: COLORS.textMuted,
     letterSpacing: 1.5,
     marginBottom: SPACING.md,

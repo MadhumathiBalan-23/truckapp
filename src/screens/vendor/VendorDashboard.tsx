@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '850',
+    fontWeight: '800',
     color: COLORS.text,
   },
   viewAllText: {

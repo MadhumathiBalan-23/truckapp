@@ -27,7 +27,7 @@ export const Loading: React.FC<LoadingProps> = ({ message, fullScreen = false })
 
 const styles = StyleSheet.create({
   fullScreenContainer: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
     justifyContent: 'center',
     alignItems: 'center',

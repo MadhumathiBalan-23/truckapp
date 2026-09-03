@@ -59,10 +59,10 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, rightElement, sho
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: COLORS.white,
-    ...SHADOWS.sm,
+    backgroundColor: COLORS.secondaryDark, // Deep Midnight Navy Header
+    ...SHADOWS.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: '#1E293B',
     zIndex: 10,
   },
   headerContainer: {
@@ -88,35 +88,36 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 18,
-    fontWeight: '700',
-    color: COLORS.text,
+    fontWeight: '800',
+    color: COLORS.white,
     textAlign: 'center',
+    letterSpacing: 0.5,
   },
   backButton: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#1E293B',
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.text,
-    marginTop: Platform.OS === 'ios' ? -3 : -1, // slight alignment correction
+    color: COLORS.white,
+    marginTop: Platform.OS === 'ios' ? -3 : -1,
   },
   logoutBtn: {
-    backgroundColor: COLORS.dangerLight,
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: COLORS.danger,
+    borderColor: '#EF4444',
   },
   logoutBtnTxt: {
     fontSize: 11,
     fontWeight: '800',
-    color: COLORS.danger,
+    color: '#EF4444',
   },
 });
