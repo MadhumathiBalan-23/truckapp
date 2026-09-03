@@ -22,6 +22,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "18bed004-a430-476e-bedc-9bd2dd9064a0"
+      }
+    },
+    "owner": "madhu_mathi"
   }
 }
