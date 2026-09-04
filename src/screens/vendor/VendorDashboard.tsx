@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { VendorParamList } from '../../navigation/types';
@@ -7,8 +7,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useTruckStore } from '../../store/truckStore';
 import { useBookingStore } from '../../store/bookingStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { BookingCard } from '../../components/BookingCard';
+import { Header } from '../../components/common/Header';
+import { BookingCard } from '../../components/common/BookingCard';
+import { Loading } from '../../components/common/Loading';
 
 type VendorDashboardNavigationProp = NativeStackNavigationProp<VendorParamList>;
 
@@ -19,6 +20,12 @@ export const VendorDashboard: React.FC = () => {
   const allTrucks = useTruckStore((state) => state.trucks);
   const allBookings = useBookingStore((state) => state.bookings);
   const vendorId = user?.id || 'USR002';
+
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 900);
+    return () => clearTimeout(timer);
+  }, []);
 
   const trucks = React.useMemo(
     () => allTrucks.filter((t) => t.vendorId === vendorId),
@@ -45,13 +52,25 @@ export const VendorDashboard: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Vendor Dashboard" />
       
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Loading />
+        </View>
+      ) : (
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} overScrollMode="never" bounces={true}>
         
-        {/* Welcome Block */}
-        <View style={styles.welcomeCard}>
-          <Text style={styles.welcomeSub}>LOGISTICS PARTNER DECK</Text>
-          <Text style={styles.welcomeTitle}>{user?.name || 'Balaji Logistics'}</Text>
-          <Text style={styles.welcomeDesc}>Manage fleet, assign drivers, and track performance payouts.</Text>
+        {/* Welcome Block + Hero Banner combined */}
+        <View style={styles.heroContainer}>
+          <Image 
+            source={require('../../../assets/vendor_hero.png')}
+            style={styles.heroImg}
+          />
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroContent}>
+            <Text style={styles.welcomeSub}>LOGISTICS PARTNER DECK</Text>
+            <Text style={styles.welcomeTitle}>{user?.name || 'Balaji Logistics'}</Text>
+            <Text style={styles.welcomeDesc}>Manage fleet, assign drivers, and track performance payouts.</Text>
+          </View>
         </View>
 
         {/* Analytics Grid */}
@@ -108,15 +127,16 @@ export const VendorDashboard: React.FC = () => {
           </View>
         ) : (
           bookings.slice(0, 2).map((item) => (
-            <BookingCard
+              <BookingCard
               key={item.id}
               booking={item}
               onPress={() => (navigation as any).navigate('Bookings')}
             />
-          ))
-        )}
+            ))
+          )}
 
-      </ScrollView>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -125,17 +145,34 @@ const styles = StyleSheet.create({
   container: {
     padding: SPACING.lg,
   },
-  welcomeCard: {
-    backgroundColor: COLORS.secondary,
+  heroContainer: {
+    height: 160,
     borderRadius: 20,
-    padding: SPACING.lg,
+    overflow: 'hidden',
+    position: 'relative',
     marginBottom: SPACING.lg,
     ...SHADOWS.md,
+  },
+  heroImg: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(51, 65, 85, 0.75)', // Elegant Slate Semi-transparent overlay
+  },
+  heroContent: {
+    position: 'absolute',
+    bottom: SPACING.lg,
+    left: SPACING.lg,
+    right: SPACING.lg,
   },
   welcomeSub: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#94A3B8',
+    color: COLORS.primaryLight,
     letterSpacing: 1.5,
   },
   welcomeTitle: {

@@ -5,8 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerParamList } from '../../navigation/types';
 import { useTruckStore } from '../../store/truckStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { TruckCard } from '../../components/TruckCard';
-import { Header } from '../../components/Header';
+import { TruckCard } from '../../components/common/TruckCard';
+import { Header } from '../../components/common/Header';
 import { TruckType } from '../../types/truck';
 
 type SearchRouteProp = RouteProp<CustomerParamList, 'SearchTrucks'>;

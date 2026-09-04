@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert, Image } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
+import { Header } from '../../components/common/Header';
 import { ROLE_PRIVILEGES } from '../../types/user';
 
 export const ProfileScreen: React.FC = () => {
@@ -23,8 +23,17 @@ export const ProfileScreen: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Account & Privileges" />
       
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} bounces={true}>
         
+        {/* Profile Hero Background */}
+        <View style={styles.heroContainer}>
+          <Image 
+            source={require('../../../assets/profile_bg.png')} 
+            style={styles.heroImg} 
+          />
+          <View style={styles.heroOverlay} />
+        </View>
+
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
@@ -115,13 +124,30 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: SPACING.lg,
+    paddingTop: 0,
+  },
+  heroContainer: {
+    height: 180,
+    marginHorizontal: -SPACING.lg,
+    position: 'relative',
+  },
+  heroImg: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
   profileCard: {
     backgroundColor: COLORS.card,
     borderRadius: 24,
     padding: SPACING.xl,
     marginBottom: SPACING.md,
-    ...SHADOWS.md,
+    marginTop: -40,
+    ...SHADOWS.lg,
     borderWidth: 1,
     borderColor: COLORS.border,
   },

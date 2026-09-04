@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { DriverParamList } from '../../navigation/types';
@@ -7,8 +7,9 @@ import { useAuthStore } from '../../store/authStore';
 import { useBookingStore } from '../../store/bookingStore';
 import { driverService } from '../../services/driverService';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { BookingCard } from '../../components/BookingCard';
+import { Header } from '../../components/common/Header';
+import { BookingCard } from '../../components/common/BookingCard';
+import { Loading } from '../../components/common/Loading';
 
 type DriverDashboardNavigationProp = NativeStackNavigationProp<DriverParamList>;
 
@@ -29,6 +30,12 @@ export const DriverDashboard: React.FC = () => {
 
   const completedTripsCount = bookings.filter((b) => b.status === 'TRIP_COMPLETED').length;
 
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 900);
+    return () => clearTimeout(timer);
+  }, []);
+
   const navigateToActive = () => {
     if (!activeTrip) {
       Alert.alert('Info', 'No active trip assigned at this time.');
@@ -41,20 +48,29 @@ export const DriverDashboard: React.FC = () => {
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title="Driver Hub" />
 
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Loading />
+        </View>
+      ) : (
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} overScrollMode="never" bounces={true}>
         
-        {/* Welcome Section */}
-        <View style={styles.statusBlock}>
-          <View style={styles.statusHeader}>
+        {/* Hero Banner */}
+        <View style={styles.heroContainer}>
+          <Image 
+            source={require('../../../assets/truck_hero.png')}
+            style={styles.heroImg}
+          />
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroContent}>
             <Text style={styles.statusLabel}>DUTY STATUS</Text>
             <View style={styles.statusBadge}>
               <View style={styles.statusDot} />
               <Text style={styles.statusTxt}>Online & Available</Text>
             </View>
+            <Text style={styles.driverGreeting}>Hello, {user?.name || 'Arun'}</Text>
+            <Text style={styles.driverSub}>You have completed {completedTripsCount} deliveries.</Text>
           </View>
-          
-          <Text style={styles.driverGreeting}>Hello, {user?.name || 'Arun'}</Text>
-          <Text style={styles.driverSub}>You have completed {completedTripsCount} deliveries total.</Text>
         </View>
 
         {/* Current Active Trip Card */}
@@ -108,6 +124,7 @@ export const DriverDashboard: React.FC = () => {
         </View>
 
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -116,17 +133,29 @@ const styles = StyleSheet.create({
   container: {
     padding: SPACING.lg,
   },
-  statusBlock: {
-    backgroundColor: '#0F172A',
+  heroContainer: {
+    height: 180,
     borderRadius: 20,
-    padding: SPACING.lg,
+    overflow: 'hidden',
+    position: 'relative',
     marginBottom: SPACING.xl,
     ...SHADOWS.md,
   },
-  statusHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  heroImg: {
+    ...StyleSheet.absoluteFill,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(15, 23, 42, 0.75)', // Elegant Slate Semi-transparent overlay
+  },
+  heroContent: {
+    position: 'absolute',
+    bottom: SPACING.lg,
+    left: SPACING.lg,
+    right: SPACING.lg,
   },
   statusLabel: {
     fontSize: 10,
@@ -137,11 +166,14 @@ const styles = StyleSheet.create({
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E293B',
+    backgroundColor: 'rgba(30, 41, 59, 0.65)',
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 8,
     gap: 6,
+    alignSelf: 'flex-start',
+    marginBottom: SPACING.sm,
+    marginTop: 6,
   },
   statusDot: {
     width: 6,

@@ -16,7 +16,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParamList } from '../../navigation/types';
 import { useTruckStore } from '../../store/truckStore';
 import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
-import { TruckCard } from '../../components/TruckCard';
+import { TruckCard } from '../../components/common/TruckCard';
 import { TruckType } from '../../types/truck';
 import { UserRole } from '../../types/user';
 

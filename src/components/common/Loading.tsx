@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { COLORS, SPACING } from '../utils/theme';
+import { COLORS, SPACING } from '../../utils/theme';
 
 interface LoadingProps {
   message?: string;

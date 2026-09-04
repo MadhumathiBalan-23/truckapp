@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { COLORS, SPACING, SHADOWS } from '../utils/theme';
+import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
 
 interface OtpVerificationModalProps {
   visible: boolean;

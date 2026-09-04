@@ -6,8 +6,8 @@ import { DriverParamList } from '../../navigation/types';
 import { useBookingStore } from '../../store/bookingStore';
 import { driverService } from '../../services/driverService';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { StatusBadge } from '../../components/StatusBadge';
+import { Header } from '../../components/common/Header';
+import { StatusBadge } from '../../components/common/StatusBadge';
 
 type ActiveTripRouteProp = RouteProp<DriverParamList, 'ActiveTrip'>;
 type ActiveTripNavigationProp = NativeStackNavigationProp<DriverParamList>;

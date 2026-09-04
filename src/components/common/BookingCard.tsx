@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../utils/theme';
-import { Booking } from '../types/booking';
+import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
+import { Booking } from '../../types/booking';
 import { StatusBadge } from './StatusBadge';
 
 interface BookingCardProps {

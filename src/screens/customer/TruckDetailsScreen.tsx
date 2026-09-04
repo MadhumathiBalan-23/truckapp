@@ -1,12 +1,13 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomerParamList } from '../../navigation/types';
 import { useTruckStore } from '../../store/truckStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { StatusBadge } from '../../components/StatusBadge';
+import { Header } from '../../components/common/Header';
+import { StatusBadge } from '../../components/common/StatusBadge';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type DetailsRouteProp = RouteProp<CustomerParamList, 'TruckDetails'>;
 type DetailsNavigationProp = NativeStackNavigationProp<CustomerParamList>;
@@ -28,7 +29,8 @@ export const TruckDetailsScreen: React.FC = () => {
     );
   }
 
-  const imageUri = truck.documents?.images[0] || 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800';
+  // Removed unspash dependency
+  const fallbackImg = require('../../../assets/truck_hero.png');
 
   const handleBookNow = () => {
     navigation.navigate('BookingForm', {
@@ -40,12 +42,28 @@ export const TruckDetailsScreen: React.FC = () => {
     });
   };
 
+  const mapRef = useRef<MapView>(null);
+
+  // Focus map on open
+  useEffect(() => {
+    if (mapRef.current) {
+      setTimeout(() => {
+        mapRef.current?.animateToRegion({
+          latitude: 13.0827,
+          longitude: 80.2707,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }, 1000);
+      }, 500);
+    }
+  }, []);
+
   return (
     <SafeAreaView style={COMMON_STYLES.safeArea}>
       <Header title={`${truck.brand} ${truck.model}`} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+        <Image source={fallbackImg} style={styles.image} resizeMode="cover" />
 
         <View style={styles.detailsCard}>
           <View style={COMMON_STYLES.flexRowBetween}>
@@ -68,6 +86,44 @@ export const TruckDetailsScreen: React.FC = () => {
             <View style={styles.badge}>
               <Text style={styles.badgeEmoji}>⭐</Text>
               <Text style={styles.badgeText}>{truck.rating} Rating</Text>
+            </View>
+          </View>
+
+          <View style={COMMON_STYLES.divider} />
+
+          {/* Proper Google Map Location */}
+          <View style={COMMON_STYLES.flexRowBetween}>
+             <Text style={styles.sectionHeader}>Current Location</Text>
+             <Text style={styles.locationCityTxt}>{truck.currentLocation}</Text>
+          </View>
+          
+          <View style={styles.mapWrap}>
+            <MapView
+              ref={mapRef}
+              style={styles.map}
+              provider={PROVIDER_GOOGLE}
+              initialRegion={{
+                latitude: 13.0827,
+                longitude: 80.2707,
+                latitudeDelta: 0.5,
+                longitudeDelta: 0.5,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+            >
+              <Marker
+                coordinate={{ latitude: 13.0827, longitude: 80.2707 }}
+                title={truck.brand}
+                description={truck.currentLocation}
+              >
+                 <View style={styles.markerContainer}>
+                    <Text style={styles.markerStr}>📍</Text>
+                 </View>
+              </Marker>
+            </MapView>
+            
+            <View style={styles.mapOverlayHint}>
+               <Text style={styles.mapOverlayTxt}>Live GPS Active</Text>
             </View>
           </View>
 
@@ -337,4 +393,46 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 0.5,
   },
+  locationCityTxt: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  mapWrap: {
+    height: 180,
+    width: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginTop: 6,
+    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    ...SHADOWS.md,
+  },
+  map: {
+    flex: 1,
+  },
+  markerContainer: {
+    padding: 2,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    ...SHADOWS.md,
+  },
+  markerStr: {
+    fontSize: 22,
+  },
+  mapOverlayHint: {
+     position: 'absolute',
+     bottom: 10,
+     right: 10,
+     backgroundColor: 'rgba(255,255,255,0.9)',
+     paddingHorizontal: 8,
+     paddingVertical: 5,
+     borderRadius: 12,
+  },
+  mapOverlayTxt: {
+     fontSize: 10,
+     fontWeight: '800',
+     color: COLORS.success,
+  }
 });

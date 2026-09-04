@@ -15,7 +15,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
-import { OtpVerificationModal } from '../../components/OtpVerificationModal';
+import { OtpVerificationModal } from '../../components/common/OtpVerificationModal';
 import { UserRole } from '../../types/user';
 
 type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthParamList, 'Register'>;

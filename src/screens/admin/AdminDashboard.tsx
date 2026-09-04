@@ -8,8 +8,8 @@ import { useTruckStore } from '../../store/truckStore';
 import { useBookingStore } from '../../store/bookingStore';
 import { MOCK_USERS } from '../../data/mockUsers';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { StatusBadge } from '../../components/StatusBadge';
+import { Header } from '../../components/common/Header';
+import { StatusBadge } from '../../components/common/StatusBadge';
 
 type AdminDashboardNavigationProp = NativeStackNavigationProp<AdminParamList>;
 

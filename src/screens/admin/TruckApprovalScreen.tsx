@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { useTruckStore } from '../../store/truckStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { TruckCard } from '../../components/TruckCard';
+import { Header } from '../../components/common/Header';
+import { TruckCard } from '../../components/common/TruckCard';
 
 type AuditingTabType = 'PENDING' | 'AUDITED';
 

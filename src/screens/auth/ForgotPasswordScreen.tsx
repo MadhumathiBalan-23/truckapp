@@ -4,8 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParamList } from '../../navigation/types';
 import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { Input } from '../../components/common/Input';
+import { Button } from '../../components/common/Button';
 
 type ForgotPasswordScreenNavigationProp = NativeStackNavigationProp<AuthParamList, 'ForgotPassword'>;
 

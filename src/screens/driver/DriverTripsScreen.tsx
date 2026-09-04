@@ -6,8 +6,8 @@ import { DriverParamList } from '../../navigation/types';
 import { useBookingStore } from '../../store/bookingStore';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { BookingCard } from '../../components/BookingCard';
+import { Header } from '../../components/common/Header';
+import { BookingCard } from '../../components/common/BookingCard';
 
 type TripsNavigationProp = NativeStackNavigationProp<DriverParamList>;
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { MOCK_USERS } from '../../data/mockUsers';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
+import { Header } from '../../components/common/Header';
 import { UserRole } from '../../types/user';
 
 type FilterRoleType = 'ALL' | 'CUSTOMER' | 'VENDOR' | 'DRIVER' | 'ADMIN';

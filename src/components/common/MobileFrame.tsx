@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Platform, Text, useWindowDimensions } from 'react-native';
-import { COLORS } from '../utils/theme';
+import { COLORS } from '../../utils/theme';
 
 interface MobileFrameProps {
   children: React.ReactNode;

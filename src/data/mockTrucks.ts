@@ -50,7 +50,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK002.pdf',
       insurance: 'INS_TRK002.pdf',
-      images: ['https://images.unsplash.com/photo-1516576880881-140175b03209?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -74,7 +74,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK003.pdf',
       insurance: 'INS_TRK003.pdf',
-      images: ['https://images.unsplash.com/photo-1592838064575-70ed626d3a44?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -99,7 +99,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK004.pdf',
       insurance: 'INS_TRK004.pdf',
-      images: ['https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -148,7 +148,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK006.pdf',
       insurance: 'INS_TRK006.pdf',
-      images: ['https://images.unsplash.com/photo-1501700490688-6161b209e578?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -172,7 +172,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK007.pdf',
       insurance: 'INS_TRK007.pdf',
-      images: ['https://images.unsplash.com/photo-1592838064575-70ed626d3a44?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?auto=format&fit=crop&q=80&w=800']
     }
   },
   {
@@ -196,7 +196,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK008.pdf',
       insurance: 'INS_TRK008.pdf',
-      images: ['https://images.unsplash.com/photo-1516576880881-140175b03209?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1620619864275-8123ccbc67c0?auto=format&fit=crop&q=80&w=800']
     }
   },
   // Simulation: Pending approvals
@@ -248,7 +248,7 @@ export const MOCK_TRUCKS: Truck[] = [
     documents: {
       rcBook: 'RC_TRK010.pdf',
       insurance: 'INS_TRK010.pdf',
-      images: ['https://images.unsplash.com/photo-1516576880881-140175b03209?auto=format&fit=crop&q=80&w=800']
+      images: ['https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&q=80&w=800']
     }
   }
 ];

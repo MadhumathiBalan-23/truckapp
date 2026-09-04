@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { useBookingStore } from '../../store/bookingStore';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { BookingCard } from '../../components/BookingCard';
+import { Header } from '../../components/common/Header';
+import { BookingCard } from '../../components/common/BookingCard';
 
 export const DriverHistoryScreen: React.FC = () => {
   const user = useAuthStore((state) => state.user);

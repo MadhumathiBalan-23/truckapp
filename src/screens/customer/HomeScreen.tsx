@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Platform,
   StatusBar as RNStatusBar,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
@@ -17,7 +18,8 @@ import { CustomerParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
 import { useTruckStore } from '../../store/truckStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { TruckCard } from '../../components/TruckCard';
+import { TruckCard } from '../../components/common/TruckCard';
+import { Loading } from '../../components/common/Loading';
 import { TruckType } from '../../types/truck';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<CustomerParamList>;
@@ -42,6 +44,12 @@ export const HomeScreen: React.FC = () => {
   const [drop, setDrop] = useState('Gandhipuram, Coimbatore');
   const [date, setDate] = useState('2026-09-04');
   const [time, setTime] = useState('10:00 AM');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSearch = () => {
     navigation.navigate('SearchTrucks', { pickup, drop, date, time });
@@ -84,6 +92,11 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       {/* ══════ SCROLLABLE CONTENT ══════ */}
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Loading />
+        </View>
+      ) : (
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -94,6 +107,19 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.greetSection}>
           <Text style={styles.greetHi}>Hello, {user?.name || 'Customer'} 👋</Text>
           <Text style={styles.greetTagline}>Move anything. Anywhere. Instantly.</Text>
+        </View>
+
+        {/* Hero Image Banner */}
+        <View style={styles.heroContainer}>
+          <Image 
+            source={require('../../../assets/truck_hero.png')} 
+            style={styles.heroImg} 
+          />
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroTextWrapper}>
+             <Text style={styles.heroTitle}>Delivering Excellence</Text>
+             <Text style={styles.heroSubText}>Logistics that run on your schedule</Text>
+          </View>
         </View>
 
         {/* Route Search Card */}
@@ -176,6 +202,7 @@ export const HomeScreen: React.FC = () => {
           )}
         </View>
       </ScrollView>
+      )}
     </View>
   );
 };
@@ -273,6 +300,41 @@ const styles = StyleSheet.create({
   greetTagline: {
     fontSize: 12.5,
     color: COLORS.textMuted,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  heroContainer: {
+    marginHorizontal: SPACING.lg,
+    marginBottom: SPACING.lg,
+    height: 140,
+    borderRadius: 20,
+    overflow: 'hidden',
+    position: 'relative',
+    ...SHADOWS.md,
+  },
+  heroImg: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  heroTextWrapper: {
+    position: 'absolute',
+    bottom: SPACING.md,
+    left: SPACING.md,
+    right: SPACING.md,
+  },
+  heroTitle: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: '900',
+  },
+  heroSubText: {
+    color: 'rgba(255,255,255,0.85)',
+    fontSize: 12,
     fontWeight: '500',
     marginTop: 2,
   },

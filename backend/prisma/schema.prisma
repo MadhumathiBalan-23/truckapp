@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("Customer") // Customer, Vendor, Driver, Admin
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  trucks    Truck[]   @relation("VendorTrucks")
+  bookings  Booking[] @relation("CustomerBookings")
+  trips     Trip[]    @relation("DriverTrips")
+}
+
+model Truck {
+  id        String    @id @default(uuid())
+  plate     String    @unique
+  capacity  Float
+  vendorId  String
+  vendor    User      @relation("VendorTrucks", fields: [vendorId], references: [id])
+  bookings  Booking[]
+  createdAt DateTime  @default(now())
+}
+
+model Booking {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   User     @relation("CustomerBookings", fields: [customerId], references: [id])
+  truckId    String?
+  truck      Truck?   @relation(fields: [truckId], references: [id])
+  pickup     String
+  destination String
+  status     String   @default("Pending") // Pending, Accepted, In Transit, Completed
+  trip       Trip?
+  createdAt  DateTime @default(now())
+}
+
+model Trip {
+  id        String   @id @default(uuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  driverId  String
+  driver    User     @relation("DriverTrips", fields: [driverId], references: [id])
+  status    String   @default("Started") // Started, Completed
+  createdAt DateTime @default(now())
+}

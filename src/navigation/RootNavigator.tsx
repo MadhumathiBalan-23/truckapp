@@ -7,7 +7,7 @@ import { CustomerNavigator } from './CustomerNavigator';
 import { VendorNavigator } from './VendorNavigator';
 import { DriverNavigator } from './DriverNavigator';
 import { AdminNavigator } from './AdminNavigator';
-import { MobileFrame } from '../components/MobileFrame';
+import { MobileFrame } from '../components/common/MobileFrame';
 import { COLORS } from '../utils/theme';
 
 export const RootNavigator: React.FC = () => {

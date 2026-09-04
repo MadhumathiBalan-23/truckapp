@@ -6,8 +6,8 @@ import { VendorParamList } from '../../navigation/types';
 import { useTruckStore } from '../../store/truckStore';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { TruckCard } from '../../components/TruckCard';
+import { Header } from '../../components/common/Header';
+import { TruckCard } from '../../components/common/TruckCard';
 
 type MyTrucksNavigationProp = NativeStackNavigationProp<VendorParamList>;
 

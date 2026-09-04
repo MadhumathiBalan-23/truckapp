@@ -8,6 +8,7 @@ import {
   TextInput,
   Platform,
   StatusBar as RNStatusBar,
+  Image,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -15,7 +16,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { OtpVerificationModal } from '../../components/OtpVerificationModal';
+import { OtpVerificationModal } from '../../components/common/OtpVerificationModal';
 import { UserRole } from '../../types/user';
 
 type LoginScreenNavigationProp = NativeStackNavigationProp<AuthParamList, 'Login'>;
@@ -81,8 +82,12 @@ export const LoginScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
 
+      {/* Extreme Premium Glowing Data Map Background */}
+      <Image source={require('../../../assets/login_bg.png')} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(9, 14, 23, 0.82)' }]} />
+
       {/* ══════ FIXED TOP HEADER (Never Scrolls) ══════ */}
-      <View style={[styles.compactHeader, { paddingTop: topInset }]}>
+      <View style={[styles.compactHeader, { paddingTop: topInset, backgroundColor: 'transparent' }]}>
         <View style={styles.headerBar}>
           <TouchableOpacity
             style={styles.backBtn}
@@ -257,9 +262,9 @@ const styles = StyleSheet.create({
   },
   singleScreenContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
     padding: SPACING.lg,
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   sectionLabel: {
     fontSize: 11,

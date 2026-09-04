@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../utils/theme';
-import { Truck } from '../types/truck';
+import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
+import { Truck } from '../../types/truck';
 import { StatusBadge } from './StatusBadge';
 
 interface TruckCardProps {
@@ -11,12 +11,12 @@ interface TruckCardProps {
 }
 
 export const TruckCard: React.FC<TruckCardProps> = ({ truck, onPress, onBookNow }) => {
-  // Fallback image if unsplash link is blank
-  const imageUri = truck.documents?.images[0] || 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&q=80&w=800';
+  // Use guaranteed local image asset
+  const imageSource = require('../../../assets/truck_card.png');
 
   return (
     <TouchableOpacity activeOpacity={0.95} onPress={onPress} style={styles.card}>
-      <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+      <Image source={imageSource} style={styles.image} resizeMode="cover" />
       <View style={styles.badgeContainer}>
         <StatusBadge status={truck.status} />
       </View>

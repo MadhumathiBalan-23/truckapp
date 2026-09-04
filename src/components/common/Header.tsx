@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, Alert, StatusBar as RNStatusBar } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useAuthStore } from '../store/authStore';
-import { COLORS, SPACING, SHADOWS } from '../utils/theme';
-import { ROLE_PRIVILEGES } from '../types/user';
+import { useAuthStore } from '../../store/authStore';
+import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
+import { ROLE_PRIVILEGES } from '../../types/user';
 
 interface HeaderProps {
   title: string;

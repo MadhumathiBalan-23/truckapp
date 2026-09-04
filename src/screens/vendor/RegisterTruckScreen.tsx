@@ -6,9 +6,9 @@ import { VendorParamList } from '../../navigation/types';
 import { useTruckStore } from '../../store/truckStore';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { Input } from '../../components/Input';
-import { Button } from '../../components/Button';
+import { Header } from '../../components/common/Header';
+import { Input } from '../../components/common/Input';
+import { Button } from '../../components/common/Button';
 import { TruckType } from '../../types/truck';
 
 type RegisterTruckNavigationProp = NativeStackNavigationProp<VendorParamList>;

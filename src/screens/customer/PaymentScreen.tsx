@@ -6,8 +6,8 @@ import { CustomerParamList } from '../../navigation/types';
 import { useBookingStore } from '../../store/bookingStore';
 import { paymentService } from '../../services/paymentService';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
-import { Header } from '../../components/Header';
-import { Button } from '../../components/Button';
+import { Header } from '../../components/common/Header';
+import { Button } from '../../components/common/Button';
 
 type PaymentRouteProp = RouteProp<CustomerParamList, 'Payment'>;
 type PaymentNavigationProp = NativeStackNavigationProp<CustomerParamList>;

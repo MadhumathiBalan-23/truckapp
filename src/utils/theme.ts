@@ -2,41 +2,41 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 export const COLORS = {
   // Primary Palette: High-Vis Logistics Orange & Deep Blue Navy
-  primary: '#FF6500', // high-vis logistics orange
-  primaryDark: '#E05500', // deep vibrant orange hover/pressed
-  primaryLight: '#FFF2E8', // soft orange tint for backgrounds & badges
+  primary: '#F97316', // More vibrant and modern orange
+  primaryDark: '#EA580C', // Deep orange for active states
+  primaryLight: '#FFF7ED', // Very soft orange for backgrounds
   
-  secondary: '#0F172A', // Deep slate navy (Deep Blue core)
-  secondaryDark: '#0A192F', // Deepest midnight blue background
-  secondaryLight: '#1E293B', // Rich card navy / header blue
+  secondary: '#334155', // Slate instead of harsh navy for light theme
+  secondaryDark: '#1E293B', // Darker slate
+  secondaryLight: '#94A3B8', // Muted slate
   
-  accentBlue: '#2563EB', // Bright cobalt blue accent
+  accentBlue: '#3B82F6', // Cobalt blue
   accentBlueLight: '#EFF6FF',
   
-  // Role Specific Palette
-  roleCustomer: '#FF6500', // Orange for Customer
-  roleVendor: '#0EA5E9', // Sky Blue for Vehicle Owner
-  roleDriver: '#10B981', // Emerald Green for Driver
-  roleAdmin: '#8B5CF6', // Royal Purple for Admin
+  // Role Specific Palette (Vibrant for Light Theme)
+  roleCustomer: '#F97316', // Bright Orange
+  roleVendor: '#0284C7', // Nice Ocean Blue
+  roleDriver: '#059669', // Emerald Green
+  roleAdmin: '#7C3AED', // Vivid Purple
   
   // Status Colors
-  success: '#10B981', // green for approved/completed
-  successLight: '#ECFDF5',
-  warning: '#F59E0B', // amber for pending/loading
+  success: '#10B981', 
+  successLight: '#D1FAE5',
+  warning: '#F59E0B', 
   warningLight: '#FEF3C7',
-  danger: '#EF4444', // red for rejected/cancelled
-  dangerLight: '#FEF2F2',
-  info: '#3B82F6', // blue for in-transit/info
-  infoLight: '#EFF6FF',
+  danger: '#EF4444', 
+  dangerLight: '#FEE2E2',
+  info: '#3B82F6', 
+  infoLight: '#DBEAFE',
   
-  // Neutral Colors
-  background: '#F8FAFC', // light grey background
-  card: '#FFFFFF', // card back color
-  cardNavy: '#0F172A', // navy card variant
-  text: '#0F172A', // dark text slate-900
-  textMuted: '#64748B', // muted text slate-500
-  textLight: '#94A3B8', // slate-400
-  border: '#E2E8F0', // slate-200 boundary lines
+  // Neutral Colors for Light Theme
+  background: '#F8FAFC', // Very clean slate-50 background
+  card: '#FFFFFF', // Pure white cards for maximum contrast with background
+  cardNavy: '#FFFFFF', // Using white card since user requested light theme
+  text: '#0F172A', // Slate-900 High contrast text
+  textMuted: '#64748B', // Slate-500
+  textLight: '#94A3B8', // Slate-400
+  border: '#E2E8F0', // Soft dividers
   white: '#FFFFFF',
   black: '#000000',
   transparent: 'transparent',
@@ -61,24 +61,24 @@ export const SPACING = {
 
 export const SHADOWS = {
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
     shadowColor: '#64748B',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 15,
+    shadowColor: '#64748B',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
     elevation: 8,
   },
 };
