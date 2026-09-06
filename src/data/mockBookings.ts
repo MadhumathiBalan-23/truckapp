@@ -68,9 +68,9 @@ export const MOCK_BOOKINGS: Booking[] = [
       total: 892,
     },
     status: 'TRUCK_IN_TRANSIT',
-    driverId: 'DRV002', // Suresh Raina
-    driverName: 'Suresh Raina',
-    driverMobile: '9876543214',
+    driverId: 'USR003', // Arun Kumar
+    driverName: 'Arun Kumar',
+    driverMobile: '9876543212',
     paymentMethod: 'CARD',
     paymentStatus: 'COMPLETED',
     createdAt: '2026-08-31T08:00:00Z',

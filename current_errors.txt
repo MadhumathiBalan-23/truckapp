@@ -1,0 +1,16 @@
+backend/index.ts(1,44): error TS7016: Could not find a declaration file for module 'express'. 'D:/Jeena/Truck/backend/node_modules/express/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/express` if it exists or add a new declaration (.d.ts) file containing `declare module 'express';`
+backend/index.ts(2,18): error TS7016: Could not find a declaration file for module 'cors'. 'D:/Jeena/Truck/backend/node_modules/cors/lib/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cors` if it exists or add a new declaration (.d.ts) file containing `declare module 'cors';`
+backend/index.ts(3,10): error TS2305: Module '"@prisma/client"' has no exported member 'PrismaClient'.
+backend/index.ts(13,36): error TS7006: Parameter 'req' implicitly has an 'any' type.
+backend/index.ts(13,41): error TS7006: Parameter 'res' implicitly has an 'any' type.
+backend/index.ts(22,39): error TS7006: Parameter 'req' implicitly has an 'any' type.
+backend/index.ts(22,44): error TS7006: Parameter 'res' implicitly has an 'any' type.
+backend/index.ts(35,31): error TS7006: Parameter 'req' implicitly has an 'any' type.
+backend/index.ts(35,36): error TS7006: Parameter 'res' implicitly has an 'any' type.
+backend/index.ts(41,34): error TS7006: Parameter 'req' implicitly has an 'any' type.
+backend/index.ts(41,39): error TS7006: Parameter 'res' implicitly has an 'any' type.
+backend/index.ts(53,43): error TS7006: Parameter 'req' implicitly has an 'any' type.
+backend/index.ts(53,48): error TS7006: Parameter 'res' implicitly has an 'any' type.
+src/components/vendor/VendorStats.tsx(3,48): error TS2307: Cannot find module '../common/../utils/theme' or its corresponding type declarations.

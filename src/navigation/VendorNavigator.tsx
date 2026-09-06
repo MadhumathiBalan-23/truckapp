@@ -10,6 +10,7 @@ import { ProfileScreen } from '../screens/customer/ProfileScreen';
 import { RegisterTruckScreen } from '../screens/vendor/RegisterTruckScreen';
 import { COLORS } from '../utils/theme';
 import { View, Text, StyleSheet, Platform } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator<VendorTabParamList>();
 const Stack = createNativeStackNavigator<VendorParamList>();
@@ -21,20 +22,23 @@ const VendorTabNavigator: React.FC = () => {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#64748B',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarLabelStyle: ts.label,
         tabBarStyle: ts.bar,
+        tabBarItemStyle: { flex: 1 },
         tabBarIcon: ({ focused }) => {
-          let icon = '📊';
-          if (route.name === 'Dashboard') icon = '📊';
-          else if (route.name === 'MyTrucks') icon = '🚛';
-          else if (route.name === 'Bookings') icon = '📋';
-          else if (route.name === 'Earnings') icon = '💰';
-          else if (route.name === 'Profile') icon = '👤';
+          let iconName: any = 'chart-bar';
+          if (route.name === 'Dashboard') iconName = 'chart-box-outline';
+          else if (route.name === 'MyTrucks') iconName = focused ? 'truck' : 'truck-outline';
+          else if (route.name === 'Bookings') iconName = focused ? 'store' : 'store-outline';
+          else if (route.name === 'Earnings') iconName = focused ? 'cash-multiple' : 'cash';
+          else if (route.name === 'Profile') iconName = focused ? 'account' : 'account-outline';
+          
+          if (route.name === 'Dashboard' && focused) iconName = 'chart-box';
+          
           return (
             <View style={ts.iconWrap}>
-              <Text style={ts.icon}>{icon}</Text>
-              {focused && <View style={ts.dot} />}
+              <MaterialCommunityIcons name={iconName} size={24} color={focused ? COLORS.primary : '#94A3B8'} />
             </View>
           );
         },
@@ -45,6 +49,9 @@ const VendorTabNavigator: React.FC = () => {
       <Tab.Screen name="Bookings" component={VendorBookingsScreen} options={{ tabBarLabel: 'Orders' }} />
       <Tab.Screen name="Earnings" component={EarningsScreen} options={{ tabBarLabel: 'Earn' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+
+      {/* Hidden nested pages that still render the footer */}
+      <Tab.Screen name="RegisterTruck" component={RegisterTruckScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
     </Tab.Navigator>
   );
 };
@@ -56,42 +63,31 @@ export const VendorNavigator: React.FC = () => {
       screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }}
     >
       <Stack.Screen name="VendorTabs" component={VendorTabNavigator} />
-      <Stack.Screen name="RegisterTruck" component={RegisterTruckScreen} />
     </Stack.Navigator>
   );
 };
 
 const ts = StyleSheet.create({
   bar: {
-    backgroundColor: '#0A192F',
-    borderTopWidth: 0,
-    height: Platform.OS === 'ios' ? 85 : 62,
-    paddingBottom: Platform.OS === 'ios' ? 22 : 8,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    height: Platform.OS === 'ios' ? 85 : 68,
+    paddingBottom: Platform.OS === 'ios' ? 22 : 12,
     paddingTop: 8,
-    elevation: 20,
+    elevation: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
   },
   label: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 0,
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: 4,
   },
   iconWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 40,
-  },
-  icon: {
-    fontSize: 22,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.primary,
-    marginTop: 2,
   },
 });

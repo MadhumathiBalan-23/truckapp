@@ -181,8 +181,6 @@ export const TruckDetailsScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Empty padding at bottom to avoid floating button overlay */}
-        <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* Floating Bottom Booking Section */}
@@ -350,19 +348,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   bookingFooter: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: COLORS.white,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingHorizontal: SPACING.lg,
+    borderTopColor: '#E2E8F0',
+    paddingHorizontal: SPACING.xl,
     paddingVertical: SPACING.md,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    zIndex: 99,
-    ...SHADOWS.lg,
+    ...SHADOWS.md,
   },
   footerLabel: {
     fontSize: 11,

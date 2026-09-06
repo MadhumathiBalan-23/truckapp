@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
 import { ROLE_PRIVILEGES } from '../../types/user';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface HeaderProps {
   title: string;
@@ -42,11 +43,11 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, rightElement, sho
         <View style={styles.leftSlot}>
           {onBack ? (
             <TouchableOpacity onPress={onBack} style={styles.backButton} activeOpacity={0.7}>
-              <Text style={styles.backArrow}>‹</Text>
+              <MaterialCommunityIcons name="chevron-left" size={26} color={COLORS.secondaryDark} />
             </TouchableOpacity>
           ) : roleMeta ? (
             <View style={[styles.roleBadge, { backgroundColor: roleMeta.badgeColor + '20', borderColor: roleMeta.badgeColor }]}>
-              <Text style={styles.roleIcon}>{roleMeta.icon}</Text>
+              <MaterialCommunityIcons name="shield-check" size={16} color={roleMeta.badgeColor} />
             </View>
           ) : null}
         </View>
@@ -57,14 +58,23 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, rightElement, sho
           <Text style={styles.screenTitle} numberOfLines={1}>{title}</Text>
         </View>
 
-        {/* Right: Logout or Custom */}
+        {/* Right: Notifications & Logout */}
         <View style={styles.rightSlot}>
+            <TouchableOpacity 
+            style={styles.notifBtn} 
+            activeOpacity={0.7} 
+            onPress={() => Alert.alert('Notifications', 'No new notifications at this time.')}
+          >
+            <MaterialCommunityIcons name="bell-outline" size={20} color={COLORS.secondaryDark} />
+            <View style={styles.notifBadge} />
+          </TouchableOpacity>
+
           {rightElement ? (
             rightElement
           ) : showLogout ? (
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
-              <Text style={styles.logoutTxt}>Exit</Text>
-            </TouchableOpacity>
+             <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.7}>
+               <MaterialCommunityIcons name="logout" size={20} color={COLORS.secondaryDark} />
+             </TouchableOpacity>
           ) : null}
         </View>
       </View>
@@ -77,19 +87,21 @@ export const Header: React.FC<HeaderProps> = ({ title, onBack, rightElement, sho
 
 const styles = StyleSheet.create({
   fixedHeaderWrapper: {
-    backgroundColor: COLORS.secondaryDark,
-    ...SHADOWS.md,
+    backgroundColor: COLORS.white,
+    ...SHADOWS.sm,
     zIndex: 100,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0'
   },
   headerBar: {
     height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md,
   },
   leftSlot: {
-    width: 40,
+    minWidth: 40,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
@@ -99,38 +111,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rightSlot: {
-    width: 50,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    minWidth: 50,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    gap: 12,
   },
   appBrandName: {
     fontSize: 9,
     fontWeight: '900',
     color: COLORS.primary,
-    letterSpacing: 3,
+    letterSpacing: 2,
   },
   screenTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.secondaryDark,
     letterSpacing: 0.3,
     marginTop: -1,
   },
   backButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: '#1E293B',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
   },
-  backArrow: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: COLORS.white,
-    marginTop: -2,
+  logoutBtn: {
+     width: 38, height: 38, borderRadius: 19,
+     backgroundColor: '#FFF1F2', justifyContent: 'center', alignItems: 'center',
+     borderWidth: 1, borderColor: '#FFE4E6'
   },
   roleBadge: {
     width: 30,
@@ -140,25 +153,31 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  roleIcon: {
-    fontSize: 14,
-  },
-  logoutBtn: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+  notifBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: '#E2E8F0',
+    position: 'relative',
   },
-  logoutTxt: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#EF4444',
+  notifBadge: {
+    position: 'absolute',
+    top: 9,
+    right: 9,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.danger,
+    borderWidth: 1,
+    borderColor: COLORS.white,
   },
   accentLine: {
-    height: 2,
-    backgroundColor: COLORS.primary,
+    height: 1,
+    backgroundColor: 'transparent',
     width: '100%',
   },
 });

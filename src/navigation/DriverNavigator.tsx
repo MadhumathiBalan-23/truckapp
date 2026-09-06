@@ -9,6 +9,7 @@ import { ProfileScreen } from '../screens/customer/ProfileScreen';
 import { ActiveTripScreen } from '../screens/driver/ActiveTripScreen';
 import { COLORS } from '../utils/theme';
 import { View, Text, StyleSheet, Platform } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator<DriverTabParamList>();
 const Stack = createNativeStackNavigator<DriverParamList>();
@@ -20,19 +21,19 @@ const DriverTabNavigator: React.FC = () => {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#64748B',
+        tabBarInactiveTintColor: '#94A3B8',
         tabBarLabelStyle: ts.label,
         tabBarStyle: ts.bar,
+        tabBarItemStyle: { flex: 1 },
         tabBarIcon: ({ focused }) => {
-          let icon = '📊';
-          if (route.name === 'Dashboard') icon = '📊';
-          else if (route.name === 'Trips') icon = '📦';
-          else if (route.name === 'History') icon = '📜';
-          else if (route.name === 'Profile') icon = '👤';
+          let iconName: any = 'chart-bar';
+          if (route.name === 'Dashboard') iconName = focused ? 'chart-box' : 'chart-box-outline';
+          else if (route.name === 'Trips') iconName = focused ? 'package-variant-closed' : 'package-variant';
+          else if (route.name === 'History') iconName = focused ? 'history' : 'clock-outline';
+          else if (route.name === 'Profile') iconName = focused ? 'account' : 'account-outline';
           return (
             <View style={ts.iconWrap}>
-              <Text style={ts.icon}>{icon}</Text>
-              {focused && <View style={ts.dot} />}
+              <MaterialCommunityIcons name={iconName} size={24} color={focused ? COLORS.primary : '#94A3B8'} />
             </View>
           );
         },
@@ -42,6 +43,9 @@ const DriverTabNavigator: React.FC = () => {
       <Tab.Screen name="Trips" component={DriverTripsScreen} />
       <Tab.Screen name="History" component={DriverHistoryScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
+
+      {/* Hidden nested pages that still render the footer */}
+      <Tab.Screen name="ActiveTrip" component={ActiveTripScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
     </Tab.Navigator>
   );
 };
@@ -53,42 +57,31 @@ export const DriverNavigator: React.FC = () => {
       screenOptions={{ headerShown: false, contentStyle: { backgroundColor: COLORS.background } }}
     >
       <Stack.Screen name="DriverTabs" component={DriverTabNavigator} />
-      <Stack.Screen name="ActiveTrip" component={ActiveTripScreen} />
     </Stack.Navigator>
   );
 };
 
 const ts = StyleSheet.create({
   bar: {
-    backgroundColor: '#0A192F',
-    borderTopWidth: 0,
-    height: Platform.OS === 'ios' ? 85 : 62,
-    paddingBottom: Platform.OS === 'ios' ? 22 : 8,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+    height: Platform.OS === 'ios' ? 85 : 68,
+    paddingBottom: Platform.OS === 'ios' ? 22 : 12,
     paddingTop: 8,
-    elevation: 20,
+    elevation: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.05,
     shadowRadius: 8,
   },
   label: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 0,
+    fontSize: 11,
+    fontWeight: '800',
+    marginTop: 4,
   },
   iconWrap: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 40,
-  },
-  icon: {
-    fontSize: 22,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: COLORS.primary,
-    marginTop: 2,
   },
 });

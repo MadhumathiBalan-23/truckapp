@@ -10,10 +10,12 @@ import {
   Platform,
   StatusBar as RNStatusBar,
   Image,
+  Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CustomerParamList } from '../../navigation/types';
 import { useAuthStore } from '../../store/authStore';
 import { useTruckStore } from '../../store/truckStore';
@@ -63,32 +65,34 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       {/* ══════ FIXED TOP HEADER (Never Scrolls) ══════ */}
       <View style={[styles.fixedTopHeader, { paddingTop: topInset }]}>
         <View style={styles.headerContent}>
           <View style={styles.brandCol}>
-            <Text style={styles.brandNameFixed}>TRUKORA</Text>
-            <Text style={styles.brandSub}>Freight Network</Text>
+             <MaterialCommunityIcons name="truck-fast" size={28} color={COLORS.primary} />
+             <View style={{marginLeft: 8}}>
+               <Text style={styles.brandNameFixed}>TRU<Text style={{color: COLORS.primary}}>KORA</Text></Text>
+               <Text style={styles.brandSub}>Freight Network</Text>
+             </View>
           </View>
 
           <View style={styles.headerRight}>
             <View style={styles.locationChip}>
-              <Text style={styles.locIcon}>📍</Text>
-              <Text style={styles.locText} numberOfLines={1}>Chennai</Text>
+               <MaterialCommunityIcons name="map-marker" size={14} color={COLORS.secondaryDark} />
+              <Text style={styles.locText} numberOfLines={1}>Chennai  <MaterialCommunityIcons name="chevron-down" size={16} /></Text>
             </View>
             <TouchableOpacity
               style={styles.bellBtn}
-              onPress={() => (navigation as any).navigate('Notifications')}
+              onPress={() => Alert.alert('Notifications', 'No new alerts found.')}
               activeOpacity={0.8}
             >
-              <Text style={styles.bellEmoji}>🔔</Text>
+              <MaterialCommunityIcons name="bell-outline" size={20} color={COLORS.secondaryDark} />
               <View style={styles.bellDot} />
             </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.accentLine} />
       </View>
 
       {/* ══════ SCROLLABLE CONTENT ══════ */}
@@ -213,30 +217,34 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   fixedTopHeader: {
-    backgroundColor: COLORS.secondaryDark,
+    backgroundColor: COLORS.white,
     zIndex: 100,
-    ...SHADOWS.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm + 2,
+    paddingVertical: SPACING.md,
   },
-  brandCol: {},
+  brandCol: {
+     flexDirection: 'row',
+     alignItems: 'center',
+  },
   brandNameFixed: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '900',
-    color: COLORS.white,
-    letterSpacing: 2.5,
+    color: COLORS.secondaryDark,
+    letterSpacing: 1,
   },
   brandSub: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: '700',
     color: COLORS.primary,
-    letterSpacing: 1.5,
-    marginTop: -1,
+    letterSpacing: 0.5,
+    marginTop: -2,
   },
   headerRight: {
     flexDirection: 'row',
@@ -246,44 +254,40 @@ const styles = StyleSheet.create({
   locationChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1E293B',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     gap: 4,
   },
-  locIcon: { fontSize: 12 },
   locText: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#E2E8F0',
+    color: COLORS.secondaryDark,
   },
   bellBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: '#1E293B',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: '#E2E8F0',
     position: 'relative',
   },
-  bellEmoji: { fontSize: 16 },
   bellDot: {
     position: 'absolute',
-    top: 7,
-    right: 7,
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: COLORS.primary,
-  },
-  accentLine: {
-    height: 2,
-    backgroundColor: COLORS.primary,
+    top: 10,
+    right: 10,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.danger,
+    borderWidth: 1,
+    borderColor: COLORS.white,
   },
   scrollContent: {
     paddingTop: SPACING.md,

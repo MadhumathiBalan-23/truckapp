@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, COMMON_STYLES } from '../common/../utils/theme'; // Adjust path if needed
 
 // Just re-import correctly based on current TS path mapping
 import { COMMON_STYLES as CommonStyles, COLORS as Colors, SPACING as Spacing } from '../../utils/theme';

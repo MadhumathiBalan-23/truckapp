@@ -8,7 +8,12 @@ import { StatusBadge } from '../../components/common/StatusBadge';
 
 export const EarningsScreen: React.FC = () => {
   const user = useAuthStore((state) => state.user);
-  const bookings = useBookingStore((state) => state.getVendorBookings(user?.id || 'USR002'));
+  const allBookings = useBookingStore((state) => state.bookings);
+  
+  const bookings = React.useMemo(() => {
+    const vId = user?.id || 'USR002';
+    return allBookings.filter(b => b.truckDetails.ownerId === vId);
+  }, [allBookings, user?.id]);
 
   // Calculate earnings analytics
   const paidJobs = bookings.filter((b) => b.status === 'TRIP_COMPLETED');

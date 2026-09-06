@@ -26,11 +26,17 @@ export type CustomerTabParamList = {
   Bookings: undefined;
   Notifications: undefined;
   Profile: undefined;
+  SearchTrucks: { pickup?: string; drop?: string; date?: string; time?: string } | undefined;
+  TruckDetails: { truckId: string };
+  BookingForm: { truckId: string; pickupLocation: string; dropLocation: string; date: string; time: string };
+  Payment: { bookingId: string };
+  LiveTracking: { bookingId: string };
+  BookingDetails: { bookingId: string };
 };
 
 export type VendorParamList = {
   VendorTabs: undefined;
-  RegisterTruck: { truckId?: string } | undefined; // support edit/resubmit
+  RegisterTruck: { truckId?: string } | undefined; 
   TruckDetails: { truckId: string };
   BookingDetails: { bookingId: string };
 };
@@ -41,6 +47,9 @@ export type VendorTabParamList = {
   Bookings: undefined;
   Earnings: undefined;
   Profile: undefined;
+  RegisterTruck: { truckId?: string } | undefined;
+  TruckDetails: { truckId: string };
+  BookingDetails: { bookingId: string };
 };
 
 export type DriverParamList = {
@@ -54,6 +63,8 @@ export type DriverTabParamList = {
   Trips: undefined;
   History: undefined;
   Profile: undefined;
+  ActiveTrip: { bookingId: string };
+  BookingDetails: { bookingId: string };
 };
 
 export type AdminParamList = {
@@ -69,4 +80,7 @@ export type AdminTabParamList = {
   Trucks: undefined;
   Bookings: undefined;
   Profile: undefined;
+  UserManagement: undefined;
+  TruckApprovalDetail: { truckId: string };
+  BookingManagementDetail: { bookingId: string };
 };

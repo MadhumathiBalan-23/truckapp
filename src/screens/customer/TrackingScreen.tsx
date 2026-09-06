@@ -12,7 +12,8 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { COLORS, SPACING, SHADOWS } from '../../utils/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
 import { useBookingStore } from '../../store/bookingStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -58,7 +59,7 @@ export const TrackingScreen: React.FC = () => {
         if (next > 1) setTripStatus('IN_TRANSIT');
         return next;
       });
-    }, 3000);
+    }, 4000);
 
     // Animate bottom sheet up
     Animated.spring(slideAnim, {
@@ -75,7 +76,7 @@ export const TrackingScreen: React.FC = () => {
   useEffect(() => {
     if (mapRef.current) {
       mapRef.current.fitToCoordinates(ROUTE_COORDS, {
-        edgePadding: { top: 80, right: 40, bottom: 260, left: 40 },
+        edgePadding: { top: 120, right: 40, bottom: 280, left: 40 },
         animated: true,
       });
     }
@@ -83,13 +84,13 @@ export const TrackingScreen: React.FC = () => {
 
   const topInset = Platform.OS === 'android' ? (RNStatusBar.currentHeight || 28) : 0;
 
-  const etaMinutes = Math.max(5, (ROUTE_COORDS.length - 1 - driverIndex) * 12);
+  const etaMinutes = Math.max(2, (ROUTE_COORDS.length - 1 - driverIndex) * 15);
   const progressPct = Math.round((driverIndex / (ROUTE_COORDS.length - 1)) * 100);
 
   const statusConfig = {
-    PICKING_UP: { label: 'Driver Heading to Pickup', color: COLORS.warning, emoji: '🚛' },
-    IN_TRANSIT: { label: 'Shipment In Transit', color: COLORS.info, emoji: '📦' },
-    ARRIVING: { label: 'Arriving at Destination', color: COLORS.success, emoji: '✅' },
+    PICKING_UP: { label: 'Driver Heading to Pickup', color: COLORS.warning, icon: 'truck-fast' },
+    IN_TRANSIT: { label: 'Shipment In Transit', color: COLORS.info, icon: 'map-marker-path' },
+    ARRIVING: { label: 'Approaching Destination', color: COLORS.success, icon: 'check-all' },
   };
   const currentStatus = statusConfig[tripStatus];
 
@@ -97,7 +98,7 @@ export const TrackingScreen: React.FC = () => {
     <View style={styles.root}>
       <StatusBar style="dark" />
 
-      {/* Google Map */}
+      {/* Google Map overlay for live tracking */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -111,102 +112,117 @@ export const TrackingScreen: React.FC = () => {
         showsUserLocation={false}
         showsMyLocationButton={false}
       >
-        {/* Route Polyline */}
+        {/* Route Polyline (dashed) */}
         <Polyline
           coordinates={ROUTE_COORDS}
           strokeWidth={4}
           strokeColor={COLORS.primary}
+          lineDashPattern={[1]}
         />
 
         {/* Pickup Marker */}
-        <Marker coordinate={pickup} title="Pickup" description="Koyambedu, Chennai">
+        <Marker coordinate={pickup} title="Pickup" description={booking?.pickupLocation || "Pickup"}>
           <View style={styles.markerGreen}>
-            <Text style={styles.markerTxt}>P</Text>
+            <MaterialCommunityIcons name="store-marker-outline" size={16} color={COLORS.white} />
           </View>
         </Marker>
 
         {/* Drop Marker */}
-        <Marker coordinate={drop} title="Drop" description="Gandhipuram, Coimbatore">
+        <Marker coordinate={drop} title="Drop Off" description={booking?.dropLocation || "Destination"}>
           <View style={styles.markerRed}>
-            <Text style={styles.markerTxt}>D</Text>
+            <MaterialCommunityIcons name="flag-checkered" size={16} color={COLORS.white} />
           </View>
         </Marker>
 
         {/* Driver Marker (Live) */}
-        <Marker coordinate={driverPos} title="Driver" description="Live Location">
+        <Marker coordinate={driverPos} title="Driver" description="Active Freight">
           <View style={styles.driverMarker}>
-            <Text style={styles.driverMarkerTxt}>🚛</Text>
+            <MaterialCommunityIcons name="truck" size={18} color={COLORS.primary} />
           </View>
         </Marker>
       </MapView>
 
-      {/* Fixed Top Bar Overlay */}
-      <View style={[styles.floatingTopBar, { top: topInset + 8 }]}>
+      {/* Uber-like Neat Top Bar Overlay */}
+      <View style={[styles.floatingTopBar, { top: topInset + 12 }]}>
         <TouchableOpacity style={styles.floatBackBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
-          <Text style={styles.floatBackTxt}>‹</Text>
+          <MaterialCommunityIcons name="arrow-left" size={24} color={COLORS.secondaryDark} />
         </TouchableOpacity>
         <View style={styles.floatCenter}>
-          <Text style={styles.floatBrand}>TRUKORA</Text>
-          <Text style={styles.floatTitle}>Live Tracking</Text>
+          <Text style={styles.floatTitle}>Live Freight Tracking</Text>
         </View>
-        <View style={styles.liveBadge}>
-          <View style={styles.liveRedDot} />
-          <Text style={styles.liveTxt}>LIVE</Text>
-        </View>
+        <TouchableOpacity style={styles.floatActionBtn} activeOpacity={0.8}>
+           <MaterialCommunityIcons name="share-variant" size={20} color={COLORS.secondaryDark} />
+        </TouchableOpacity>
       </View>
 
-      {/* Bottom Trip Details Sheet */}
+      <View style={[styles.liveBadge, { top: topInset + 72 }]}>
+         <View style={styles.liveRedDot} />
+         <Text style={styles.liveTxt}>GPS ACTIVE</Text>
+      </View>
+
+      {/* Advanced Neat Bottom Action Sheet */}
       <Animated.View
         style={[
           styles.bottomSheet,
           { transform: [{ translateY: slideAnim.interpolate({ inputRange: [0, 1], outputRange: [300, 0] }) }] },
         ]}
       >
-        {/* Status Bar */}
-        <View style={[styles.statusRow, { borderColor: currentStatus.color }]}>
-          <Text style={styles.statusEmoji}>{currentStatus.emoji}</Text>
-          <View style={{ flex: 1 }}>
+        <View style={styles.dragHandle} />
+
+        {/* Live Status Bar */}
+        <View style={[styles.statusRow, { borderColor: `${currentStatus.color}40`, backgroundColor: `${currentStatus.color}10` }]}>
+          <MaterialCommunityIcons name={currentStatus.icon as any} size={28} color={currentStatus.color} />
+          <View style={{ flex: 1, marginLeft: SPACING.md }}>
             <Text style={[styles.statusLabel, { color: currentStatus.color }]}>{currentStatus.label}</Text>
-            <Text style={styles.statusSub}>ETA: {etaMinutes} mins • {progressPct}% completed</Text>
+            <Text style={styles.statusSub}>Arriving in {etaMinutes} mins • {progressPct}% Route Finished</Text>
           </View>
         </View>
 
-        {/* Progress Bar */}
+        {/* Dynamic Progress Indicator */}
         <View style={styles.progressBarBg}>
           <View style={[styles.progressBarFill, { width: `${progressPct}%`, backgroundColor: currentStatus.color }]} />
         </View>
 
-        {/* Route Info */}
-        <View style={styles.routeInfoRow}>
+        {/* Detailed Route Points */}
+        <View style={styles.routeInfoBlock}>
           <View style={styles.routePoint}>
-            <View style={styles.routeGreenDot} />
-            <View>
-              <Text style={styles.routeLabel}>PICKUP</Text>
-              <Text style={styles.routePlace} numberOfLines={1}>{booking?.pickupLocation || 'Koyambedu, Chennai'}</Text>
+            <MaterialCommunityIcons name="circle-slice-8" size={12} color={COLORS.success} />
+            <View style={styles.routeTextBlock}>
+              <Text style={styles.routeLabel}>ORIGIN LOCATION</Text>
+              <Text style={styles.routePlace} numberOfLines={1}>{booking?.pickupLocation || 'Anna Nagar, Chennai'}</Text>
             </View>
           </View>
-          <View style={styles.routeArrow}><Text style={{ color: COLORS.textLight }}>→</Text></View>
+          
+          <View style={styles.routeConnectorBorder} />
+
           <View style={styles.routePoint}>
-            <View style={styles.routeRedDot} />
-            <View>
-              <Text style={styles.routeLabel}>DROP</Text>
-              <Text style={styles.routePlace} numberOfLines={1}>{booking?.dropLocation || 'Gandhipuram, Coimbatore'}</Text>
+             <MaterialCommunityIcons name="map-marker" size={14} color={COLORS.danger} style={{ marginLeft: -1 }} />
+            <View style={styles.routeTextBlock}>
+              <Text style={styles.routeLabel}>DESTINATION</Text>
+              <Text style={styles.routePlace} numberOfLines={1}>{booking?.dropLocation || 'RS Puram, Coimbatore'}</Text>
             </View>
           </View>
         </View>
 
-        {/* Driver Card */}
+        <View style={COMMON_STYLES.divider} />
+
+        {/* Driver Contact Context */}
         <View style={styles.driverCard}>
           <View style={styles.driverAvatar}>
-            <Text style={styles.driverAvatarTxt}>🧑‍✈️</Text>
+            <MaterialCommunityIcons name="card-account-details-outline" size={24} color={COLORS.secondaryDark} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.driverName}>Rajesh Kumar</Text>
-            <Text style={styles.driverSub}>TN 38 AB 1234 • Tata 407</Text>
+            <Text style={styles.driverName}>{booking?.driverName || 'Verified Pilot'}</Text>
+            <Text style={styles.driverSub}>Tata BharatBenz • {booking?.truckDetails?.truckNumber || 'TN 38 AB 1234'}</Text>
           </View>
-          <TouchableOpacity style={styles.callBtn} activeOpacity={0.8}>
-            <Text style={styles.callBtnTxt}>📞 Call</Text>
-          </TouchableOpacity>
+          <View style={styles.contactActions}>
+            <TouchableOpacity style={styles.iconBtn}>
+              <MaterialCommunityIcons name="message-processing" size={20} color={COLORS.primary} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconBtnCta}>
+              <MaterialCommunityIcons name="phone" size={20} color={COLORS.white} />
+            </TouchableOpacity>
+          </View>
         </View>
       </Animated.View>
     </View>
@@ -217,84 +233,96 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: COLORS.background },
   map: { flex: 1 },
   markerGreen: {
-    width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.success,
+    width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.success,
     justifyContent: 'center', alignItems: 'center', ...SHADOWS.md,
-    borderWidth: 2, borderColor: COLORS.white,
+    borderWidth: 2, borderColor: '#fff'
   },
   markerRed: {
-    width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.danger,
+    width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.danger,
     justifyContent: 'center', alignItems: 'center', ...SHADOWS.md,
-    borderWidth: 2, borderColor: COLORS.white,
+    borderWidth: 2, borderColor: '#fff'
   },
-  markerTxt: { color: COLORS.white, fontSize: 13, fontWeight: '900' },
   driverMarker: {
-    width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.secondaryDark,
+    width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.white,
     justifyContent: 'center', alignItems: 'center', ...SHADOWS.lg,
     borderWidth: 2, borderColor: COLORS.primary,
   },
-  driverMarkerTxt: { fontSize: 22 },
   floatingTopBar: {
     position: 'absolute', left: SPACING.lg, right: SPACING.lg,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: COLORS.secondaryDark, borderRadius: 16,
-    paddingHorizontal: SPACING.md, height: 48, ...SHADOWS.lg,
+    backgroundColor: COLORS.white, borderRadius: 30,
+    paddingHorizontal: SPACING.sm, height: 50, ...SHADOWS.lg,
   },
   floatBackBtn: {
-    width: 30, height: 30, borderRadius: 10, backgroundColor: '#1E293B',
-    justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#334155',
-  },
-  floatBackTxt: { fontSize: 20, fontWeight: '600', color: COLORS.white, marginTop: -2 },
-  floatCenter: { alignItems: 'center' },
-  floatBrand: { fontSize: 8, fontWeight: '900', color: COLORS.primary, letterSpacing: 2.5 },
-  floatTitle: { fontSize: 13, fontWeight: '700', color: COLORS.white, marginTop: -1 },
-  liveBadge: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(239,68,68,0.15)', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
-    borderWidth: 1, borderColor: 'rgba(239,68,68,0.4)',
-  },
-  liveRedDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#EF4444' },
-  liveTxt: { fontSize: 10, fontWeight: '900', color: '#EF4444' },
-  bottomSheet: {
-    position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    padding: SPACING.lg, paddingBottom: Platform.OS === 'ios' ? 34 : SPACING.lg,
-    ...SHADOWS.lg,
-  },
-  statusRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: COLORS.background, borderRadius: 14, padding: SPACING.md,
-    borderWidth: 1.5, marginBottom: SPACING.sm,
-  },
-  statusEmoji: { fontSize: 24 },
-  statusLabel: { fontSize: 14, fontWeight: '800' },
-  statusSub: { fontSize: 11, color: COLORS.textMuted, fontWeight: '600', marginTop: 1 },
-  progressBarBg: {
-    height: 6, backgroundColor: COLORS.border, borderRadius: 3, marginBottom: SPACING.md, overflow: 'hidden',
-  },
-  progressBarFill: { height: '100%', borderRadius: 3 },
-  routeInfoRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: SPACING.md,
-  },
-  routePoint: { flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 },
-  routeGreenDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.success },
-  routeRedDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.danger },
-  routeArrow: { paddingHorizontal: 6 },
-  routeLabel: { fontSize: 9, fontWeight: '800', color: COLORS.textMuted, letterSpacing: 0.5 },
-  routePlace: { fontSize: 12, fontWeight: '700', color: COLORS.secondary },
-  driverCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: COLORS.secondaryDark, borderRadius: 14, padding: SPACING.md,
-  },
-  driverAvatar: {
-    width: 40, height: 40, borderRadius: 12, backgroundColor: '#1E293B',
+    width: 38, height: 38, borderRadius: 19, backgroundColor: '#F1F5F9',
     justifyContent: 'center', alignItems: 'center',
   },
-  driverAvatarTxt: { fontSize: 20 },
-  driverName: { fontSize: 14, fontWeight: '800', color: COLORS.white },
-  driverSub: { fontSize: 11, color: '#94A3B8', fontWeight: '600' },
-  callBtn: {
-    backgroundColor: COLORS.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10,
+  floatCenter: { alignItems: 'center' },
+  floatTitle: { fontSize: 16, fontWeight: '800', color: COLORS.secondaryDark },
+  floatActionBtn: {
+    width: 38, height: 38, borderRadius: 19, backgroundColor: '#F1F5F9',
+    justifyContent: 'center', alignItems: 'center',
   },
-  callBtnTxt: { color: COLORS.white, fontSize: 12, fontWeight: '800' },
+  liveBadge: {
+    position: 'absolute', right: SPACING.xl,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    backgroundColor: 'rgba(239, 68, 68, 0.95)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12,
+    ...SHADOWS.md,
+  },
+  liveRedDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFFFFF' },
+  liveTxt: { fontSize: 10, fontWeight: '900', color: '#FFFFFF', letterSpacing: 0.5 },
+  bottomSheet: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: COLORS.white, borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    padding: SPACING.lg, paddingBottom: Platform.OS === 'ios' ? 34 : SPACING.xl,
+    ...SHADOWS.lg,
+    borderTopWidth: 1, borderTopColor: '#F1F5F9',
+  },
+  dragHandle: {
+    width: 40, height: 5, backgroundColor: '#CBD5E1', borderRadius: 3,
+    alignSelf: 'center', marginBottom: SPACING.md,
+  },
+  statusRow: {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: 16, padding: SPACING.md,
+    borderWidth: 1, marginBottom: SPACING.md,
+  },
+  statusLabel: { fontSize: 15, fontWeight: '800' },
+  statusSub: { fontSize: 11, color: COLORS.textMuted, fontWeight: '600', marginTop: 2 },
+  progressBarBg: {
+    height: 6, backgroundColor: '#E2E8F0', borderRadius: 3, marginBottom: SPACING.lg, overflow: 'hidden',
+  },
+  progressBarFill: { height: '100%', borderRadius: 3 },
+  routeInfoBlock: {
+    paddingHorizontal: SPACING.xs,
+  },
+  routePoint: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  routeConnectorBorder: {
+    width: 2, height: 20, backgroundColor: '#E2E8F0',
+    marginLeft: 5, marginVertical: 4,
+  },
+  routeTextBlock: { flex: 1, marginTop: -2 },
+  routeLabel: { fontSize: 10, fontWeight: '800', color: COLORS.textMuted, letterSpacing: 1 },
+  routePlace: { fontSize: 15, fontWeight: '700', color: COLORS.secondaryDark, marginTop: 2 },
+  driverCard: {
+    flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: SPACING.sm,
+  },
+  driverAvatar: {
+    width: 46, height: 46, borderRadius: 23, backgroundColor: '#F1F5F9',
+    justifyContent: 'center', alignItems: 'center',
+    borderWidth: 1, borderColor: '#E2E8F0',
+  },
+  driverName: { fontSize: 15, fontWeight: '800', color: COLORS.secondaryDark },
+  driverSub: { fontSize: 12, color: COLORS.textMuted, fontWeight: '600', marginTop: 1 },
+  contactActions: {
+    flexDirection: 'row', gap: 10,
+  },
+  iconBtn: {
+     width: 40, height: 40, borderRadius: 20, backgroundColor: '#FFF7ED',
+     borderWidth: 1, borderColor: COLORS.primary, justifyContent: 'center', alignItems: 'center'
+  },
+  iconBtnCta: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.primary,
+    justifyContent: 'center', alignItems: 'center', ...SHADOWS.md
+  }
 });

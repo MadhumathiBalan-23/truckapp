@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { COLORS, SPACING, SHADOWS, COMMON_STYLES } from '../../utils/theme';
 import { Header } from '../../components/common/Header';
 import { ROLE_PRIVILEGES } from '../../types/user';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const ProfileScreen: React.FC = () => {
   const user = useAuthStore((state) => state.user);
@@ -19,29 +20,39 @@ export const ProfileScreen: React.FC = () => {
     ]);
   };
 
+  const getRoleIcon = (role: string): any => {
+    switch(role) {
+      case 'ADMIN': return 'shield-account-outline';
+      case 'VENDOR': return 'storefront-outline';
+      case 'DRIVER': return 'steering-wheel';
+      default: return 'account-outline';
+    }
+  };
+
+  const OptionRow = ({ icon, title, onPress }: { icon: any, title: string, onPress: () => void }) => (
+    <TouchableOpacity style={styles.optionRow} onPress={onPress}>
+      <View style={styles.optionLeft}>
+        <MaterialCommunityIcons name={icon} size={22} color={COLORS.textMuted} />
+        <Text style={styles.optionName}>{title}</Text>
+      </View>
+      <MaterialCommunityIcons name="chevron-right" size={20} color={COLORS.border} />
+    </TouchableOpacity>
+  );
+
   return (
     <SafeAreaView style={COMMON_STYLES.safeArea}>
-      <Header title="Account & Privileges" />
+      <Header title="Account Profile" />
       
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false} bounces={true}>
         
-        {/* Profile Hero Background */}
-        <View style={styles.heroContainer}>
-          <Image 
-            source={require('../../../assets/profile_bg.png')} 
-            style={styles.heroImg} 
-          />
-          <View style={styles.heroOverlay} />
-        </View>
-
         {/* Profile Card */}
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
-            <View style={[styles.avatarCircle, { borderColor: roleMeta.badgeColor }]}>
-              <Text style={styles.avatarEmoji}>{roleMeta.icon}</Text>
+            <View style={[styles.avatarCircle, { backgroundColor: roleMeta.badgeColor + '15' }]}>
+              <MaterialCommunityIcons name={getRoleIcon(user?.role || 'CUSTOMER')} size={36} color={roleMeta.badgeColor} />
             </View>
 
-            <View style={{ flex: 1 }}>
+            <View style={styles.profileMeta}>
               <Text style={styles.userName}>{user?.name || 'Logistics User'}</Text>
               
               <View style={styles.badgeRow}>
@@ -53,7 +64,8 @@ export const ProfileScreen: React.FC = () => {
 
                 {user?.mobileVerified !== false && (
                   <View style={styles.verifiedBadge}>
-                    <Text style={styles.verifiedBadgeText}>✓ Phone Verified</Text>
+                    <MaterialCommunityIcons name="check-circle" size={14} color={COLORS.success} />
+                    <Text style={styles.verifiedBadgeText}> Verified</Text>
                   </View>
                 )}
               </View>
@@ -62,58 +74,33 @@ export const ProfileScreen: React.FC = () => {
 
           <View style={styles.divider} />
 
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>📧 EMAIL ADDRESS</Text>
-            <Text style={styles.infoValue}>{user?.email || 'user@truckgo.com'}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>📱 REGISTERED MOBILE</Text>
-            <Text style={styles.infoValue}>+91 {user?.mobile || '9876543210'}</Text>
-          </View>
-        </View>
-
-        {/* Role Privileges & Capabilities Card */}
-        <View style={[styles.privilegeCard, { borderLeftColor: roleMeta.badgeColor }]}>
-          <View style={styles.privilegeHeaderRow}>
-            <Text style={styles.privilegeHeaderTitle}>
-              🛡️ Active Role Privileges ({user?.role})
-            </Text>
-          </View>
-          <Text style={styles.privilegeSub}>{roleMeta.description}</Text>
-
-          <View style={styles.permList}>
-            {userPrivileges.map((perm, idx) => (
-              <View key={idx} style={styles.permItem}>
-                <Text style={[styles.checkMark, { color: roleMeta.badgeColor }]}>✓</Text>
-                <Text style={styles.permText}>{perm}</Text>
-              </View>
-            ))}
+          <View style={styles.contactInfo}>
+            <View style={styles.infoItem}>
+              <MaterialCommunityIcons name="email-outline" size={18} color={COLORS.textMuted} />
+              <Text style={styles.infoValue}>{user?.email || 'user@truckgo.com'}</Text>
+            </View>
+            <View style={styles.infoItem}>
+              <MaterialCommunityIcons name="phone-outline" size={18} color={COLORS.textMuted} />
+              <Text style={styles.infoValue}>+91 {user?.mobile || '9876543210'}</Text>
+            </View>
           </View>
         </View>
 
         {/* User Settings */}
-        <View style={COMMON_STYLES.card}>
+        <View style={styles.settingsSection}>
           <Text style={styles.sectionTitle}>WORKSPACE SETTINGS</Text>
-          
-          <TouchableOpacity style={styles.optionRow} onPress={() => Alert.alert('Notifications', 'Notification preferences saved')}>
-            <Text style={styles.optionName}>🔔 Push & SMS Notifications</Text>
-            <Text style={styles.optionArrow}>Enabled ›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.optionRow} onPress={() => Alert.alert('Security', 'Security settings managed')}>
-            <Text style={styles.optionName}>🔒 Biometrics / OTP Login</Text>
-            <Text style={styles.optionArrow}>Configured ›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.optionRow} onPress={() => Alert.alert('Support', 'Connecting you with 24/7 support...')}>
-            <Text style={styles.optionName}>📞 24/7 Logistics Support</Text>
-            <Text style={styles.optionArrow}>Chat ›</Text>
-          </TouchableOpacity>
+          <View style={styles.settingsCard}>
+            <OptionRow icon="bell-outline" title="Push & SMS Notifications" onPress={() => Alert.alert('Notifications', 'Notification preferences saved')} />
+            <OptionRow icon="fingerprint" title="Security & Login" onPress={() => Alert.alert('Security', 'Security settings managed')} />
+            <OptionRow icon="headset" title="Help & Support" onPress={() => Alert.alert('Support', 'Connecting you with support...')} />
+            <OptionRow icon="shield-check-outline" title="Role Privileges" onPress={() => Alert.alert('Active Privileges', userPrivileges.join('\n• '))} />
+          </View>
         </View>
 
         {/* Logout Button */}
         <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
-          <Text style={styles.logoutBtnTxt}>SIGN OUT WORKSPACE</Text>
+          <MaterialCommunityIcons name="logout" size={20} color={COLORS.danger} />
+          <Text style={styles.logoutBtnTxt}>SIGN OUT</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -124,182 +111,136 @@ export const ProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     padding: SPACING.lg,
-    paddingTop: 0,
-  },
-  heroContainer: {
-    height: 180,
-    marginHorizontal: -SPACING.lg,
-    position: 'relative',
-  },
-  heroImg: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    paddingTop: SPACING.md,
+    gap: SPACING.lg,
   },
   profileCard: {
     backgroundColor: COLORS.card,
-    borderRadius: 24,
+    borderRadius: 20,
     padding: SPACING.xl,
-    marginBottom: SPACING.md,
-    marginTop: -40,
-    ...SHADOWS.lg,
+    ...SHADOWS.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: 'transparent',
   },
   profileHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.md,
+    gap: SPACING.lg,
+  },
+  profileMeta: {
+    flex: 1,
   },
   avatarCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: COLORS.background,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2.5,
-  },
-  avatarEmoji: {
-    fontSize: 32,
   },
   userName: {
     fontSize: 20,
-    fontWeight: '900',
+    fontWeight: '800',
     color: COLORS.secondary,
+    marginBottom: 6,
   },
   badgeRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 4,
     flexWrap: 'wrap',
   },
   roleBadge: {
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   roleBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
   verifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: COLORS.successLight,
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.success,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
   verifiedBadgeText: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: '700',
     color: COLORS.success,
   },
   divider: {
     height: 1,
     backgroundColor: COLORS.border,
-    marginVertical: SPACING.md,
+    marginVertical: SPACING.lg,
   },
-  infoRow: {
-    marginVertical: SPACING.xs,
+  contactInfo: {
+    gap: SPACING.sm,
   },
-  infoLabel: {
-    fontSize: 11,
-    color: COLORS.textMuted,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   infoValue: {
     fontSize: 14.5,
-    color: COLORS.secondary,
-    fontWeight: '700',
-    marginTop: 2,
+    color: COLORS.text,
+    fontWeight: '500',
   },
-  privilegeCard: {
-    backgroundColor: '#0F172A', // Deep Slate Navy
-    borderRadius: 20,
-    padding: SPACING.xl,
-    marginBottom: SPACING.md,
-    ...SHADOWS.md,
-    borderLeftWidth: 4,
-    borderLeftColor: COLORS.primary,
-  },
-  privilegeHeaderRow: {
-    marginBottom: 4,
-  },
-  privilegeHeaderTitle: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: COLORS.white,
-  },
-  privilegeSub: {
-    fontSize: 12.5,
-    color: '#94A3B8',
-    marginBottom: SPACING.md,
-    lineHeight: 17,
-  },
-  permList: {
-    gap: 6,
-  },
-  permItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  checkMark: {
-    fontSize: 14,
-    fontWeight: '900',
-  },
-  permText: {
-    fontSize: 13,
-    color: '#F8FAFC',
-    fontWeight: '600',
+  settingsSection: {
+    gap: SPACING.sm,
   },
   sectionTitle: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: COLORS.textMuted,
-    letterSpacing: 1.5,
-    marginBottom: SPACING.sm,
+    letterSpacing: 1.2,
+    marginLeft: SPACING.xs,
+  },
+  settingsCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    ...SHADOWS.sm,
+    overflow: 'hidden',
   },
   optionRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: SPACING.md,
+    padding: SPACING.lg,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: '#F1F5F9',
+  },
+  optionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
   optionName: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.secondary,
-    fontWeight: '700',
-  },
-  optionArrow: {
-    fontSize: 13,
-    color: COLORS.textMuted,
     fontWeight: '600',
   },
   logoutBtn: {
-    backgroundColor: COLORS.dangerLight,
-    borderWidth: 1.5,
-    borderColor: COLORS.danger,
-    height: 52,
-    borderRadius: 14,
+    flexDirection: 'row',
+    backgroundColor: '#FEF2F2', // Very light red
+    borderWidth: 1,
+    borderColor: '#FCC2C2',
+    height: 54,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: SPACING.lg,
+    gap: 8,
+    marginTop: SPACING.sm,
     marginBottom: SPACING.xl,
   },
   logoutBtnTxt: {
     color: COLORS.danger,
-    fontSize: 14.5,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });
